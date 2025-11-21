@@ -8,10 +8,12 @@ import 'core/di/injection.dart';
 import 'core/router/app_router.dart';
 import 'core/network/connectivity_service.dart';
 import 'data/repositories/auth_repository.dart';
+import 'data/repositories/categorias_repository.dart';
 import 'data/sync/sync_service.dart';
 import 'presentation/blocs/auth/auth_bloc.dart';
 import 'presentation/blocs/connectivity/connectivity_bloc.dart';
 import 'presentation/blocs/theme/theme_bloc.dart';
+import 'presentation/blocs/categorias/categorias_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,9 +39,9 @@ class MyApp extends StatelessWidget {
       providers: [
         // Auth Bloc
         BlocProvider<AuthBloc>(
-          create: (context) => AuthBloc(
-            authRepository: getIt<AuthRepository>(),
-          )..add(AuthCheckRequested()),
+          create: (context) =>
+              AuthBloc(authRepository: getIt<AuthRepository>())
+                ..add(AuthCheckRequested()),
         ),
 
         // Connectivity Bloc
@@ -53,6 +55,11 @@ class MyApp extends StatelessWidget {
         BlocProvider<ThemeBloc>(
           create: (context) => ThemeBloc()..add(ThemeLoadRequested()),
         ),
+
+        // Categorias Bloc
+        BlocProvider<CategoriasBloc>(
+          create: (context) => CategoriasBloc(getIt<CategoriasRepository>()),
+        ),
       ],
       child: Builder(
         builder: (context) {
@@ -61,9 +68,7 @@ class MyApp extends StatelessWidget {
           syncService.subscribeToRealtimeChanges();
 
           // Crear router con AuthBloc
-          final appRouter = AppRouter(
-            authBloc: context.read<AuthBloc>(),
-          );
+          final appRouter = AppRouter(authBloc: context.read<AuthBloc>());
 
           return BlocBuilder<ThemeBloc, ThemeState>(
             builder: (context, themeState) {
