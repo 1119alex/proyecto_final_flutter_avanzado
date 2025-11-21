@@ -1,0 +1,84 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'core/config/supabase_config.dart';
+import 'core/theme/app_theme.dart';
+import 'core/di/injection.dart';
+import 'core/router/app_router.dart';
+import 'core/network/connectivity_service.dart';
+import 'data/repositories/auth_repository.dart';
+import 'data/sync/sync_service.dart';
+import 'presentation/blocs/auth/auth_bloc.dart';
+import 'presentation/blocs/connectivity/connectivity_bloc.dart';
+import 'presentation/blocs/theme/theme_bloc.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializar Supabase
+  await Supabase.initialize(
+    url: SupabaseConfig.url,
+    anonKey: SupabaseConfig.anonKey,
+  );
+
+  // Configurar inyección de dependencias
+  await configureDependencies();
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        // Auth Bloc
+        BlocProvider<AuthBloc>(
+          create: (context) => AuthBloc(
+            authRepository: getIt<AuthRepository>(),
+          )..add(AuthCheckRequested()),
+        ),
+
+        // Connectivity Bloc
+        BlocProvider<ConnectivityBloc>(
+          create: (context) => ConnectivityBloc(
+            connectivityService: getIt<ConnectivityService>(),
+          )..add(ConnectivityStarted()),
+        ),
+
+        // Theme Bloc
+        BlocProvider<ThemeBloc>(
+          create: (context) => ThemeBloc()..add(ThemeLoadRequested()),
+        ),
+      ],
+      child: Builder(
+        builder: (context) {
+          // Iniciar servicio de sincronización
+          final syncService = getIt<SyncService>();
+          syncService.subscribeToRealtimeChanges();
+
+          // Crear router con AuthBloc
+          final appRouter = AppRouter(
+            authBloc: context.read<AuthBloc>(),
+          );
+
+          return BlocBuilder<ThemeBloc, ThemeState>(
+            builder: (context, themeState) {
+              return MaterialApp.router(
+                title: 'LibroStock',
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                themeMode: themeState.themeMode,
+                routerConfig: appRouter.router,
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
