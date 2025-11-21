@@ -25,6 +25,15 @@ Future<void> configureDependencies() async {
     () => CategoriaDao(getIt<AppDatabase>()),
   );
 
+  // Servicio de sincronización (debe registrarse antes de repositorios que lo usen)
+  getIt.registerLazySingleton<SyncService>(
+    () => SyncService(
+      db: getIt<AppDatabase>(),
+      supabase: getIt<SupabaseClient>(),
+      connectivity: getIt<ConnectivityService>(),
+    ),
+  );
+
   // Repositorios
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepository(getIt<SupabaseClient>()),
@@ -32,14 +41,5 @@ Future<void> configureDependencies() async {
 
   getIt.registerLazySingleton<CategoriasRepository>(
     () => CategoriasRepository(getIt<CategoriaDao>()),
-  );
-
-  // Servicio de sincronización
-  getIt.registerLazySingleton<SyncService>(
-    () => SyncService(
-      db: getIt<AppDatabase>(),
-      supabase: getIt<SupabaseClient>(),
-      connectivity: getIt<ConnectivityService>(),
-    ),
   );
 }

@@ -24,9 +24,9 @@ class SyncService {
     required AppDatabase db,
     required SupabaseClient supabase,
     required ConnectivityService connectivity,
-  })  : _db = db,
-        _supabase = supabase,
-        _connectivity = connectivity {
+  }) : _db = db,
+       _supabase = supabase,
+       _connectivity = connectivity {
     _init();
   }
 
@@ -44,10 +44,7 @@ class SyncService {
 
   void _startPeriodicSync() {
     _syncTimer?.cancel();
-    _syncTimer = Timer.periodic(
-      const Duration(minutes: 5),
-      (_) => syncAll(),
-    );
+    _syncTimer = Timer.periodic(const Duration(minutes: 5), (_) => syncAll());
   }
 
   /// Sincronizar todos los datos pendientes
@@ -65,17 +62,19 @@ class SyncService {
         try {
           await _processOperation(op);
           // Eliminar de la cola si fue exitoso
-          await (_db.delete(_db.syncQueue)
-                ..where((s) => s.id.equals(op.id)))
-              .go();
+          await (_db.delete(
+            _db.syncQueue,
+          )..where((s) => s.id.equals(op.id))).go();
         } catch (e) {
           // Incrementar contador de reintentos
-          await (_db.update(_db.syncQueue)
-                ..where((s) => s.id.equals(op.id)))
-              .write(SyncQueueCompanion(
-            retryCount: Value(op.retryCount + 1),
-            errorMessage: Value(e.toString()),
-          ));
+          await (_db.update(
+            _db.syncQueue,
+          )..where((s) => s.id.equals(op.id))).write(
+            SyncQueueCompanion(
+              retryCount: Value(op.retryCount + 1),
+              errorMessage: Value(e.toString()),
+            ),
+          );
           debugPrint('Error sincronizando operación ${op.id}: $e');
         }
       }
@@ -101,10 +100,7 @@ class SyncService {
         await _supabase.from(op.targetTable).insert(data);
         break;
       case 'update':
-        await _supabase
-            .from(op.targetTable)
-            .update(data)
-            .eq('id', op.recordId);
+        await _supabase.from(op.targetTable).update(data).eq('id', op.recordId);
         break;
       case 'delete':
         await _supabase.from(op.targetTable).delete().eq('id', op.recordId);
@@ -118,7 +114,9 @@ class SyncService {
       // Sincronizar categorías
       await _syncTable('categorias', (data) async {
         for (final item in data) {
-          await _db.into(_db.categorias).insertOnConflictUpdate(
+          await _db
+              .into(_db.categorias)
+              .insertOnConflictUpdate(
                 CategoriasCompanion.insert(
                   id: item['id'],
                   nombre: item['nombre'],
@@ -134,7 +132,9 @@ class SyncService {
       // Sincronizar tiendas
       await _syncTable('tiendas', (data) async {
         for (final item in data) {
-          await _db.into(_db.tiendas).insertOnConflictUpdate(
+          await _db
+              .into(_db.tiendas)
+              .insertOnConflictUpdate(
                 TiendasCompanion.insert(
                   id: item['id'],
                   nombre: item['nombre'],
@@ -150,7 +150,9 @@ class SyncService {
       // Sincronizar almacenes
       await _syncTable('almacenes', (data) async {
         for (final item in data) {
-          await _db.into(_db.almacenes).insertOnConflictUpdate(
+          await _db
+              .into(_db.almacenes)
+              .insertOnConflictUpdate(
                 AlmacenesCompanion.insert(
                   id: item['id'],
                   nombre: item['nombre'],
@@ -166,7 +168,9 @@ class SyncService {
       // Sincronizar productos
       await _syncTable('productos', (data) async {
         for (final item in data) {
-          await _db.into(_db.productos).insertOnConflictUpdate(
+          await _db
+              .into(_db.productos)
+              .insertOnConflictUpdate(
                 ProductosCompanion.insert(
                   id: item['id'],
                   codigo: item['codigo'],
@@ -188,7 +192,9 @@ class SyncService {
       // Sincronizar inventario
       await _syncTable('inventario', (data) async {
         for (final item in data) {
-          await _db.into(_db.inventario).insertOnConflictUpdate(
+          await _db
+              .into(_db.inventario)
+              .insertOnConflictUpdate(
                 InventarioCompanion.insert(
                   id: item['id'],
                   productoId: item['producto_id'],
@@ -201,7 +207,6 @@ class SyncService {
               );
         }
       });
-
     } catch (e) {
       debugPrint('Error descargando datos: $e');
     }
@@ -227,7 +232,9 @@ class SyncService {
     required String operation,
     required Map<String, dynamic> data,
   }) async {
-    await _db.into(_db.syncQueue).insert(
+    await _db
+        .into(_db.syncQueue)
+        .insert(
           SyncQueueCompanion.insert(
             targetTable: tableName,
             recordId: recordId,
@@ -244,6 +251,20 @@ class SyncService {
 
   /// Suscribirse a cambios en tiempo real
   void subscribeToRealtimeChanges() {
+    // Suscribirse a cambios en categorías
+    _supabase
+        .channel('public:categorias')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'categorias',
+          callback: (payload) {
+            debugPrint('Cambio en categorías: ${payload.eventType}');
+            _pullFromServer();
+          },
+        )
+        .subscribe();
+
     // Suscribirse a cambios en productos
     _supabase
         .channel('public:productos')
@@ -280,9 +301,4 @@ class SyncService {
 }
 
 /// Estados de sincronización
-enum SyncStatus {
-  idle,
-  syncing,
-  completed,
-  error,
-}
+enum SyncStatus { idle, syncing, completed, error }
