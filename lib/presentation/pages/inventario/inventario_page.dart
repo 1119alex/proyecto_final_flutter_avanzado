@@ -53,7 +53,10 @@ class _InventarioPageState extends State<InventarioPage> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  const Text('Filtros: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Filtros: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   if (_filtroAlmacen != 'todos')
                     Chip(
                       label: Text('Almacén: $_filtroAlmacen'),
@@ -63,16 +66,38 @@ class _InventarioPageState extends State<InventarioPage> {
                   if (_filtroCategoria != 'todos')
                     Chip(
                       label: Text('Categoría: $_filtroCategoria'),
-                      onDeleted: () => setState(() => _filtroCategoria = 'todos'),
+                      onDeleted: () =>
+                          setState(() => _filtroCategoria = 'todos'),
                     ),
                 ],
               ),
             ),
           // Lista de inventario
           Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.inventory, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No hay productos en inventario',
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Agrega productos primero',
+                    style: TextStyle(color: Colors.grey[500]),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Lista de inventario (oculta)
+          Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: 20,
+              itemCount: 0,
               itemBuilder: (context, index) {
                 final stockLevel = index % 4;
                 Color stockColor;
@@ -107,14 +132,20 @@ class _InventarioPageState extends State<InventarioPage> {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: stockColor.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
                                 stockText,
-                                style: TextStyle(color: stockColor, fontSize: 12),
+                                style: TextStyle(
+                                  color: stockColor,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
                           ],
@@ -127,11 +158,17 @@ class _InventarioPageState extends State<InventarioPage> {
                       children: [
                         Text(
                           '${(index + 1) * 5} unid.',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                         Text(
                           'Min: 10',
-                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -176,15 +213,24 @@ class _InventarioPageState extends State<InventarioPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Filtrar Inventario', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Filtrar Inventario',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: _filtroAlmacen,
               decoration: const InputDecoration(labelText: 'Almacén'),
               items: const [
                 DropdownMenuItem(value: 'todos', child: Text('Todos')),
-                DropdownMenuItem(value: 'principal', child: Text('Almacén Principal')),
-                DropdownMenuItem(value: 'secundario', child: Text('Almacén Secundario')),
+                DropdownMenuItem(
+                  value: 'principal',
+                  child: Text('Almacén Principal'),
+                ),
+                DropdownMenuItem(
+                  value: 'secundario',
+                  child: Text('Almacén Secundario'),
+                ),
               ],
               onChanged: (v) => setState(() => _filtroAlmacen = v!),
             ),
@@ -196,7 +242,10 @@ class _InventarioPageState extends State<InventarioPage> {
                 DropdownMenuItem(value: 'todos', child: Text('Todas')),
                 DropdownMenuItem(value: 'libros', child: Text('Libros')),
                 DropdownMenuItem(value: 'cuadernos', child: Text('Cuadernos')),
-                DropdownMenuItem(value: 'utiles', child: Text('Útiles de Escritura')),
+                DropdownMenuItem(
+                  value: 'utiles',
+                  child: Text('Útiles de Escritura'),
+                ),
               ],
               onChanged: (v) => setState(() => _filtroCategoria = v!),
             ),
@@ -228,7 +277,10 @@ class _InventarioPageState extends State<InventarioPage> {
             _buildDetalleRow('Stock mínimo', '10 unidades'),
             _buildDetalleRow('Stock máximo', '100 unidades'),
             const Divider(),
-            const Text('Distribución por almacén:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Distribución por almacén:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             _buildDetalleRow('Almacén Principal', '${(index + 1) * 3} unid.'),
             _buildDetalleRow('Almacén Secundario', '${(index + 1) * 2} unid.'),
           ],

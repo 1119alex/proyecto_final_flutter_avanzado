@@ -31,22 +31,53 @@ class VentasPage extends StatelessWidget {
           ),
           // Lista de ventas
           Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.receipt, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No hay ventas registradas',
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Crea tu primera venta',
+                    style: TextStyle(color: Colors.grey[500]),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Lista de ventas (oculta)
+          Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: 10,
+              itemCount: 0,
               itemBuilder: (context, index) {
                 return Card(
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: AppTheme.successColor.withValues(alpha: 0.1),
-                      child: const Icon(Icons.receipt, color: AppTheme.successColor),
+                      backgroundColor: AppTheme.successColor.withValues(
+                        alpha: 0.1,
+                      ),
+                      child: const Icon(
+                        Icons.receipt,
+                        color: AppTheme.successColor,
+                      ),
                     ),
                     title: Text('Venta #${1000 + index}'),
-                    subtitle: Text('Cliente ${index + 1} - ${DateTime.now().toString().substring(0, 16)}'),
+                    subtitle: Text(
+                      'Cliente ${index + 1} - ${DateTime.now().toString().substring(0, 16)}',
+                    ),
                     trailing: Text(
                       'Bs. ${(index + 1) * 50}.00',
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.successColor),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.successColor,
+                      ),
                     ),
                     onTap: () {},
                   ),
@@ -68,7 +99,14 @@ class VentasPage extends StatelessWidget {
   Widget _buildStat(String label, String value, Color color) {
     return Column(
       children: [
-        Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color)),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
         Text(label, style: TextStyle(color: color.withValues(alpha: 0.8))),
       ],
     );

@@ -5,43 +5,57 @@ class CategoriasPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categorias = [
-      {'nombre': 'Libros', 'icon': Icons.book, 'color': Colors.blue, 'count': 45},
-      {'nombre': 'Cuadernos', 'icon': Icons.menu_book, 'color': Colors.green, 'count': 32},
-      {'nombre': 'Útiles de Escritura', 'icon': Icons.edit, 'color': Colors.orange, 'count': 67},
-      {'nombre': 'Arte y Manualidades', 'icon': Icons.palette, 'color': Colors.purple, 'count': 28},
-      {'nombre': 'Papelería', 'icon': Icons.folder, 'color': Colors.teal, 'count': 41},
-      {'nombre': 'Mochilas y Estuches', 'icon': Icons.backpack, 'color': Colors.pink, 'count': 19},
-    ];
+    // TODO: Conectar con BLoC de categorías
+    final categorias = <Map<String, dynamic>>[];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Categorías'),
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: categorias.length,
-        itemBuilder: (context, index) {
-          final cat = categorias[index];
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: (cat['color'] as Color).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(cat['icon'] as IconData, color: cat['color'] as Color),
+      appBar: AppBar(title: const Text('Categorías')),
+      body: categorias.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.category, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No hay categorías',
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Agrega tu primera categoría',
+                    style: TextStyle(color: Colors.grey[500]),
+                  ),
+                ],
               ),
-              title: Text(cat['nombre'] as String),
-              subtitle: Text('${cat['count']} productos'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {},
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: categorias.length,
+              itemBuilder: (context, index) {
+                final cat = categorias[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: (cat['color'] as Color).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        cat['icon'] as IconData,
+                        color: cat['color'] as Color,
+                      ),
+                    ),
+                    title: Text(cat['nombre'] as String),
+                    subtitle: Text('${cat['count']} productos'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {},
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddCategoriaDialog(context),
         child: const Icon(Icons.add),
@@ -57,9 +71,7 @@ class CategoriasPage extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              decoration: const InputDecoration(labelText: 'Nombre'),
-            ),
+            TextField(decoration: const InputDecoration(labelText: 'Nombre')),
             const SizedBox(height: 16),
             TextField(
               decoration: const InputDecoration(labelText: 'Descripción'),
@@ -67,8 +79,14 @@ class CategoriasPage extends StatelessWidget {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
-          ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Guardar')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Guardar'),
+          ),
         ],
       ),
     );

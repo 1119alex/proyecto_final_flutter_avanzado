@@ -13,24 +13,23 @@ class ComprasPage extends StatelessWidget {
           IconButton(icon: const Icon(Icons.filter_list), onPressed: () {}),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          return Card(
-            margin: const EdgeInsets.only(bottom: 8),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Colors.purple.withValues(alpha: 0.1),
-                child: const Icon(Icons.shopping_cart, color: Colors.purple),
-              ),
-              title: Text('Compra #${2000 + index}'),
-              subtitle: Text('Proveedor ${index + 1} - ${DateTime.now().toString().substring(0, 10)}'),
-              trailing: Text('Bs. ${(index + 1) * 500}.00', style: const TextStyle(fontWeight: FontWeight.bold)),
-              onTap: () {},
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.shopping_cart, size: 64, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            Text(
+              'No hay compras registradas',
+              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
             ),
-          );
-        },
+            const SizedBox(height: 8),
+            Text(
+              'Registra tu primera compra',
+              style: TextStyle(color: Colors.grey[500]),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/compras/nueva'),
