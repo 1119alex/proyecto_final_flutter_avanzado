@@ -293,6 +293,20 @@ class SyncService {
         )
         .subscribe();
 
+    // Suscribirse a cambios en proveedores
+    _supabase
+        .channel('public:proveedores')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'proveedores',
+          callback: (payload) {
+            debugPrint('Cambio en proveedores: ${payload.eventType}');
+            _pullFromServer();
+          },
+        )
+        .subscribe();
+
     // Suscribirse a cambios en productos
     _supabase
         .channel('public:productos')

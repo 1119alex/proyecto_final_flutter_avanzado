@@ -4085,7 +4085,7 @@ class InventarioCompanion extends UpdateCompanion<InventarioData> {
 }
 
 class $ProveedoresTable extends Proveedores
-    with TableInfo<$ProveedoresTable, Proveedore> {
+    with TableInfo<$ProveedoresTable, Proveedor> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -4219,7 +4219,7 @@ class $ProveedoresTable extends Proveedores
   static const String $name = 'proveedores';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Proveedore> instance, {
+    Insertable<Proveedor> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -4291,9 +4291,9 @@ class $ProveedoresTable extends Proveedores
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Proveedore map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Proveedor map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Proveedore(
+    return Proveedor(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -4343,7 +4343,7 @@ class $ProveedoresTable extends Proveedores
   }
 }
 
-class Proveedore extends DataClass implements Insertable<Proveedore> {
+class Proveedor extends DataClass implements Insertable<Proveedor> {
   final String id;
   final String nombre;
   final String? contacto;
@@ -4354,7 +4354,7 @@ class Proveedore extends DataClass implements Insertable<Proveedore> {
   final DateTime createdAt;
   final DateTime updatedAt;
   final String syncStatus;
-  const Proveedore({
+  const Proveedor({
     required this.id,
     required this.nombre,
     this.contacto,
@@ -4413,12 +4413,12 @@ class Proveedore extends DataClass implements Insertable<Proveedore> {
     );
   }
 
-  factory Proveedore.fromJson(
+  factory Proveedor.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Proveedore(
+    return Proveedor(
       id: serializer.fromJson<String>(json['id']),
       nombre: serializer.fromJson<String>(json['nombre']),
       contacto: serializer.fromJson<String?>(json['contacto']),
@@ -4448,7 +4448,7 @@ class Proveedore extends DataClass implements Insertable<Proveedore> {
     };
   }
 
-  Proveedore copyWith({
+  Proveedor copyWith({
     String? id,
     String? nombre,
     Value<String?> contacto = const Value.absent(),
@@ -4459,7 +4459,7 @@ class Proveedore extends DataClass implements Insertable<Proveedore> {
     DateTime? createdAt,
     DateTime? updatedAt,
     String? syncStatus,
-  }) => Proveedore(
+  }) => Proveedor(
     id: id ?? this.id,
     nombre: nombre ?? this.nombre,
     contacto: contacto.present ? contacto.value : this.contacto,
@@ -4471,8 +4471,8 @@ class Proveedore extends DataClass implements Insertable<Proveedore> {
     updatedAt: updatedAt ?? this.updatedAt,
     syncStatus: syncStatus ?? this.syncStatus,
   );
-  Proveedore copyWithCompanion(ProveedoresCompanion data) {
-    return Proveedore(
+  Proveedor copyWithCompanion(ProveedoresCompanion data) {
+    return Proveedor(
       id: data.id.present ? data.id.value : this.id,
       nombre: data.nombre.present ? data.nombre.value : this.nombre,
       contacto: data.contacto.present ? data.contacto.value : this.contacto,
@@ -4490,7 +4490,7 @@ class Proveedore extends DataClass implements Insertable<Proveedore> {
 
   @override
   String toString() {
-    return (StringBuffer('Proveedore(')
+    return (StringBuffer('Proveedor(')
           ..write('id: $id, ')
           ..write('nombre: $nombre, ')
           ..write('contacto: $contacto, ')
@@ -4521,7 +4521,7 @@ class Proveedore extends DataClass implements Insertable<Proveedore> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Proveedore &&
+      (other is Proveedor &&
           other.id == this.id &&
           other.nombre == this.nombre &&
           other.contacto == this.contacto &&
@@ -4534,7 +4534,7 @@ class Proveedore extends DataClass implements Insertable<Proveedore> {
           other.syncStatus == this.syncStatus);
 }
 
-class ProveedoresCompanion extends UpdateCompanion<Proveedore> {
+class ProveedoresCompanion extends UpdateCompanion<Proveedor> {
   final Value<String> id;
   final Value<String> nombre;
   final Value<String?> contacto;
@@ -4573,7 +4573,7 @@ class ProveedoresCompanion extends UpdateCompanion<Proveedore> {
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        nombre = Value(nombre);
-  static Insertable<Proveedore> custom({
+  static Insertable<Proveedor> custom({
     Expression<String>? id,
     Expression<String>? nombre,
     Expression<String>? contacto,
@@ -16074,7 +16074,7 @@ typedef $$ProveedoresTableUpdateCompanionBuilder =
     });
 
 final class $$ProveedoresTableReferences
-    extends BaseReferences<_$AppDatabase, $ProveedoresTable, Proveedore> {
+    extends BaseReferences<_$AppDatabase, $ProveedoresTable, Proveedor> {
   $$ProveedoresTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static MultiTypedResultKey<$ComprasTable, List<Compra>> _comprasRefsTable(
@@ -16314,14 +16314,14 @@ class $$ProveedoresTableTableManager
         RootTableManager<
           _$AppDatabase,
           $ProveedoresTable,
-          Proveedore,
+          Proveedor,
           $$ProveedoresTableFilterComposer,
           $$ProveedoresTableOrderingComposer,
           $$ProveedoresTableAnnotationComposer,
           $$ProveedoresTableCreateCompanionBuilder,
           $$ProveedoresTableUpdateCompanionBuilder,
-          (Proveedore, $$ProveedoresTableReferences),
-          Proveedore,
+          (Proveedor, $$ProveedoresTableReferences),
+          Proveedor,
           PrefetchHooks Function({bool comprasRefs})
         > {
   $$ProveedoresTableTableManager(_$AppDatabase db, $ProveedoresTable table)
@@ -16404,7 +16404,7 @@ class $$ProveedoresTableTableManager
                 return [
                   if (comprasRefs)
                     await $_getPrefetchedData<
-                      Proveedore,
+                      Proveedor,
                       $ProveedoresTable,
                       Compra
                     >(
@@ -16435,14 +16435,14 @@ typedef $$ProveedoresTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
       $ProveedoresTable,
-      Proveedore,
+      Proveedor,
       $$ProveedoresTableFilterComposer,
       $$ProveedoresTableOrderingComposer,
       $$ProveedoresTableAnnotationComposer,
       $$ProveedoresTableCreateCompanionBuilder,
       $$ProveedoresTableUpdateCompanionBuilder,
-      (Proveedore, $$ProveedoresTableReferences),
-      Proveedore,
+      (Proveedor, $$ProveedoresTableReferences),
+      Proveedor,
       PrefetchHooks Function({bool comprasRefs})
     >;
 typedef $$ComprasTableCreateCompanionBuilder =

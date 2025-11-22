@@ -134,6 +134,7 @@ class Inventario extends Table {
 }
 
 /// Tabla de proveedores
+@DataClassName('Proveedor')
 class Proveedores extends Table {
   TextColumn get id => text()();
   TextColumn get nombre => text()();

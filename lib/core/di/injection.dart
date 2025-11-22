@@ -5,11 +5,13 @@ import '../../data/local/database/app_database.dart';
 import '../../data/local/daos/categoria_dao.dart';
 import '../../data/local/daos/tienda_dao.dart';
 import '../../data/local/daos/almacen_dao.dart';
+import '../../data/local/daos/proveedor_dao.dart';
 import '../../data/sync/sync_service.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/categorias_repository.dart';
 import '../../data/repositories/tiendas_repository.dart';
 import '../../data/repositories/almacenes_repository.dart';
+import '../../data/repositories/proveedores_repository.dart';
 
 final getIt = GetIt.instance;
 
@@ -33,6 +35,10 @@ Future<void> configureDependencies() async {
 
   getIt.registerLazySingleton<AlmacenDao>(
     () => AlmacenDao(getIt<AppDatabase>()),
+  );
+
+  getIt.registerLazySingleton<ProveedorDao>(
+    () => ProveedorDao(getIt<AppDatabase>()),
   );
 
   // Servicio de sincronización (debe registrarse antes de repositorios que lo usen)
@@ -59,5 +65,9 @@ Future<void> configureDependencies() async {
 
   getIt.registerLazySingleton<AlmacenesRepository>(
     () => AlmacenesRepository(getIt<AlmacenDao>()),
+  );
+
+  getIt.registerLazySingleton<ProveedoresRepository>(
+    () => ProveedoresRepository(getIt<ProveedorDao>()),
   );
 }
