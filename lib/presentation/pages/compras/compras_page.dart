@@ -233,11 +233,14 @@ class _ComprasPageState extends State<ComprasPage> {
         ),
         title: Row(
           children: [
-            Text(
-              'Compra #${compra.id.substring(0, 8)}',
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                decoration: esCancelada ? TextDecoration.lineThrough : null,
+            Expanded(
+              child: Text(
+                'Compra #${compra.id.substring(0, 8)}',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  decoration: esCancelada ? TextDecoration.lineThrough : null,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             if (esCancelada) ...[

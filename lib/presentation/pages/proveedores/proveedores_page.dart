@@ -201,8 +201,10 @@ class _ProveedoresPageState extends State<ProveedoresPage> {
                         proveedor.direccion!,
                       ),
                     const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.center,
                       children: [
                         OutlinedButton.icon(
                           onPressed: () =>

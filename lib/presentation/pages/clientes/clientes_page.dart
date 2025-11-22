@@ -207,8 +207,10 @@ class _ClientesPageState extends State<ClientesPage> {
                         cliente.direccion!,
                       ),
                     const Divider(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.center,
                       children: [
                         OutlinedButton.icon(
                           onPressed: () =>
