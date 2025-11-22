@@ -64,10 +64,19 @@ class SyncService {
     _syncStatusController.add(SyncStatus.syncing);
 
     try {
-      // Limpiar operaciones con demasiados reintentos
+      // PRIMERO: Descargar datos del servidor
+      // Esto es importante para que un usuario que se loguea en un nuevo
+      // dispositivo obtenga todos los datos antes de intentar subir cambios
+      // ignore: avoid_print
+      print('=== INICIANDO PULL FROM SERVER ===');
+      await _pullFromServer();
+      // ignore: avoid_print
+      print('=== PULL FROM SERVER COMPLETADO ===');
+
+      // SEGUNDO: Limpiar operaciones con demasiados reintentos
       await clearFailedOperations();
 
-      // Obtener operaciones pendientes de la cola
+      // TERCERO: Subir cambios locales pendientes
       final pendingOps = await _db.select(_db.syncQueue).get();
       // ignore: avoid_print
       print('Operaciones pendientes en cola: ${pendingOps.length}');
@@ -98,9 +107,6 @@ class SyncService {
         }
       }
 
-      // Descargar datos nuevos del servidor
-      await _pullFromServer();
-
       _syncStatusController.add(SyncStatus.completed);
     } catch (e) {
       debugPrint('Error en sincronización: $e');
@@ -122,9 +128,17 @@ class SyncService {
 
     switch (op.operation) {
       case 'insert':
-        await _supabase.from(op.targetTable).insert(data);
-        // ignore: avoid_print
-        print('INSERT EXITOSO en ${op.targetTable}');
+        // Para la tabla usuarios, usar upsert en lugar de insert
+        // porque Supabase tiene un trigger que crea automáticamente el usuario
+        if (op.targetTable == 'usuarios') {
+          await _supabase.from(op.targetTable).upsert(data);
+          // ignore: avoid_print
+          print('UPSERT EXITOSO en ${op.targetTable}');
+        } else {
+          await _supabase.from(op.targetTable).insert(data);
+          // ignore: avoid_print
+          print('INSERT EXITOSO en ${op.targetTable}');
+        }
         break;
       case 'update':
         await _supabase.from(op.targetTable).update(data).eq('id', op.recordId);

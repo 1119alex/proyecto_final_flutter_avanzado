@@ -2,6 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/repositories/auth_repository.dart';
+import '../../../core/di/injection.dart';
+import '../../../data/sync/sync_service.dart';
 
 // ==================== EVENTOS ====================
 abstract class AuthEvent extends Equatable {
@@ -82,8 +84,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
 
   AuthBloc({required AuthRepository authRepository})
-      : _authRepository = authRepository,
-        super(AuthInitial()) {
+    : _authRepository = authRepository,
+      super(AuthInitial()) {
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthLoginRequested>(_onAuthLoginRequested);
     on<AuthRegisterRequested>(_onAuthRegisterRequested);
@@ -96,6 +98,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     final user = _authRepository.currentUser;
     if (user != null) {
+      // Sincronizar datos del servidor al verificar sesión
+      try {
+        final syncService = getIt<SyncService>();
+        await syncService.syncAll();
+      } catch (e) {
+        // Continuar aunque falle la sincronización
+        // ignore: avoid_print
+        print('Error al sincronizar en verificación de sesión: $e');
+      }
+
       final result = await _authRepository.getCurrentUserData();
       result.fold(
         (failure) => emit(AuthAuthenticated(user: user)),
@@ -117,16 +129,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       password: event.password,
     );
 
-    await result.fold(
-      (failure) async => emit(AuthError(failure.message)),
-      (user) async {
-        final userDataResult = await _authRepository.getCurrentUserData();
-        userDataResult.fold(
-          (failure) => emit(AuthAuthenticated(user: user)),
-          (userData) => emit(AuthAuthenticated(user: user, userData: userData)),
-        );
-      },
-    );
+    await result.fold((failure) async => emit(AuthError(failure.message)), (
+      user,
+    ) async {
+      // Sincronizar datos del servidor al loguearse
+      try {
+        final syncService = getIt<SyncService>();
+        await syncService.syncAll();
+      } catch (e) {
+        // Continuar aunque falle la sincronización
+        // ignore: avoid_print
+        print('Error al sincronizar después del login: $e');
+      }
+
+      final userDataResult = await _authRepository.getCurrentUserData();
+      userDataResult.fold(
+        (failure) => emit(AuthAuthenticated(user: user)),
+        (userData) => emit(AuthAuthenticated(user: user, userData: userData)),
+      );
+    });
   }
 
   Future<void> _onAuthRegisterRequested(

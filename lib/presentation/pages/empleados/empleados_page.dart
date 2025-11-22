@@ -45,6 +45,10 @@ class _EmpleadosPageState extends State<EmpleadosPage> {
       body: BlocConsumer<UsuariosBloc, UsuariosState>(
         listener: (context, state) {
           if (state is UsuarioCreated) {
+            // Cerrar loading dialog si está abierto (solo cierra 1 nivel)
+            if (Navigator.canPop(context)) {
+              Navigator.of(context, rootNavigator: true).pop();
+            }
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Usuario creado exitosamente'),
@@ -66,6 +70,11 @@ class _EmpleadosPageState extends State<EmpleadosPage> {
               ),
             );
           } else if (state is UsuariosError) {
+            // Cerrar loading dialog si está abierto y el error es de creación
+            if (state.message.contains('crear usuario') &&
+                Navigator.canPop(context)) {
+              Navigator.of(context, rootNavigator: true).pop();
+            }
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
@@ -682,6 +691,12 @@ class _EmpleadosPageState extends State<EmpleadosPage> {
 
                   Navigator.pop(dialogContext);
 
+                  // Guardar referencias antes de async gaps
+                  final authRepo = getIt<AuthRepository>();
+                  final bloc = context.read<UsuariosBloc>();
+                  final navigator = Navigator.of(context, rootNavigator: true);
+                  final scaffoldMessenger = ScaffoldMessenger.of(context);
+
                   // Mostrar loading
                   showDialog(
                     context: context,
@@ -707,35 +722,30 @@ class _EmpleadosPageState extends State<EmpleadosPage> {
                   );
 
                   try {
-                    final authRepo = getIt<AuthRepository>();
-
                     // Agregar timeout de 30 segundos
-                    final result = await authRepo.signUp(
-                      email: emailController.text.trim(),
-                      password: passwordController.text,
-                      nombre: nombreController.text.trim(),
-                      apellido: apellidoController.text.trim(),
-                      rol: rolSeleccionado!,
-                    ).timeout(
-                      const Duration(seconds: 30),
-                      onTimeout: () {
-                        throw Exception(
-                          'Timeout: La operación tardó demasiado. Verifica tu conexión.',
+                    final result = await authRepo
+                        .signUp(
+                          email: emailController.text.trim(),
+                          password: passwordController.text,
+                          nombre: nombreController.text.trim(),
+                          apellido: apellidoController.text.trim(),
+                          rol: rolSeleccionado!,
+                        )
+                        .timeout(
+                          const Duration(seconds: 30),
+                          onTimeout: () {
+                            throw Exception(
+                              'Timeout: La operación tardó demasiado. Verifica tu conexión.',
+                            );
+                          },
                         );
-                      },
-                    );
-
-                    // IMPORTANTE: Cerrar loading antes de continuar
-                    if (context.mounted) {
-                      Navigator.of(context, rootNavigator: true).pop();
-                    }
-
-                    if (!context.mounted) return;
 
                     result.fold(
                       (failure) {
-                        // Error al crear usuario en Auth
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        // Error al crear usuario en Auth - cerrar loading
+                        navigator.pop();
+
+                        scaffoldMessenger.showSnackBar(
                           SnackBar(
                             content: Text('Error: ${failure.message}'),
                             backgroundColor: AppTheme.errorColor,
@@ -745,7 +755,8 @@ class _EmpleadosPageState extends State<EmpleadosPage> {
                       },
                       (user) {
                         // Usuario creado en Auth, ahora crear en tabla usuarios
-                        context.read<UsuariosBloc>().add(
+                        // Enviar evento al BLoC
+                        bloc.add(
                           CreateUsuario(
                             id: user.id,
                             email: emailController.text.trim(),
@@ -756,40 +767,39 @@ class _EmpleadosPageState extends State<EmpleadosPage> {
                             almacenId: almacenSeleccionado,
                           ),
                         );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Usuario creado exitosamente'),
-                            backgroundColor: AppTheme.successColor,
-                            duration: Duration(seconds: 3),
-                          ),
-                        );
+
+                        // El BlocListener (línea 38-72) se encargará de:
+                        // 1. Cerrar el loading dialog
+                        // 2. Mostrar SnackBar de éxito/error
+                        // 3. La lista se actualizará automáticamente con UsuariosLoaded
                       },
                     );
                   } catch (e) {
                     // Cerrar loading si hay error
-                    if (context.mounted) {
-                      Navigator.of(context, rootNavigator: true).pop();
+                    navigator.pop();
 
-                      String errorMessage = e.toString();
-                      if (errorMessage.contains('Timeout')) {
-                        errorMessage = 'La operación tardó demasiado. Verifica tu conexión a internet.';
-                      } else if (errorMessage.contains('Exception:')) {
-                        errorMessage = errorMessage.replaceAll('Exception:', '').trim();
-                      }
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(errorMessage),
-                          backgroundColor: AppTheme.errorColor,
-                          duration: const Duration(seconds: 5),
-                          action: SnackBarAction(
-                            label: 'OK',
-                            textColor: Colors.white,
-                            onPressed: () {},
-                          ),
-                        ),
-                      );
+                    String errorMessage = e.toString();
+                    if (errorMessage.contains('Timeout')) {
+                      errorMessage =
+                          'La operación tardó demasiado. Verifica tu conexión a internet.';
+                    } else if (errorMessage.contains('Exception:')) {
+                      errorMessage = errorMessage
+                          .replaceAll('Exception:', '')
+                          .trim();
                     }
+
+                    scaffoldMessenger.showSnackBar(
+                      SnackBar(
+                        content: Text(errorMessage),
+                        backgroundColor: AppTheme.errorColor,
+                        duration: const Duration(seconds: 5),
+                        action: SnackBarAction(
+                          label: 'OK',
+                          textColor: Colors.white,
+                          onPressed: () {},
+                        ),
+                      ),
+                    );
                   }
                 }
               },
