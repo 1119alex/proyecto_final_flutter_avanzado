@@ -12,6 +12,7 @@ import 'data/repositories/categorias_repository.dart';
 import 'data/repositories/tiendas_repository.dart';
 import 'data/repositories/almacenes_repository.dart';
 import 'data/repositories/proveedores_repository.dart';
+import 'data/repositories/productos_repository.dart';
 import 'data/sync/sync_service.dart';
 import 'presentation/blocs/auth/auth_bloc.dart';
 import 'presentation/blocs/connectivity/connectivity_bloc.dart';
@@ -20,6 +21,7 @@ import 'presentation/blocs/categorias/categorias_bloc.dart';
 import 'presentation/blocs/tiendas/tiendas_bloc.dart';
 import 'presentation/blocs/almacenes/almacenes_bloc.dart';
 import 'presentation/blocs/proveedores/proveedores_bloc.dart';
+import 'presentation/blocs/productos/productos_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -80,6 +82,11 @@ class MyApp extends StatelessWidget {
         // Proveedores Bloc
         BlocProvider<ProveedoresBloc>(
           create: (context) => ProveedoresBloc(getIt<ProveedoresRepository>()),
+        ),
+
+        // Productos Bloc
+        BlocProvider<ProductosBloc>(
+          create: (context) => ProductosBloc(getIt<ProductosRepository>()),
         ),
       ],
       child: Builder(

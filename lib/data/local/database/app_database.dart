@@ -78,6 +78,7 @@ class Categorias extends Table {
 }
 
 /// Tabla de productos
+@DataClassName('Producto')
 class Productos extends Table {
   TextColumn get id => text()();
   TextColumn get codigo => text().unique()();

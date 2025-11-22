@@ -11,7 +11,9 @@ class CompraDao extends DatabaseAccessor<AppDatabase> with _$CompraDaoMixin {
 
   // Obtener todas las compras
   Future<List<Compra>> getAllCompras() {
-    return (select(compras)..orderBy([(c) => OrderingTerm.desc(c.fecha)])).get();
+    return (select(
+      compras,
+    )..orderBy([(c) => OrderingTerm.desc(c.fecha)])).get();
   }
 
   // Obtener compras por almacén
@@ -25,9 +27,11 @@ class CompraDao extends DatabaseAccessor<AppDatabase> with _$CompraDaoMixin {
   // Obtener compras por fecha
   Future<List<Compra>> getComprasByFecha(DateTime inicio, DateTime fin) {
     return (select(compras)
-          ..where((c) =>
-              c.fecha.isBiggerOrEqualValue(inicio) &
-              c.fecha.isSmallerOrEqualValue(fin))
+          ..where(
+            (c) =>
+                c.fecha.isBiggerOrEqualValue(inicio) &
+                c.fecha.isSmallerOrEqualValue(fin),
+          )
           ..orderBy([(c) => OrderingTerm.desc(c.fecha)]))
         .get();
   }
@@ -49,14 +53,18 @@ class CompraDao extends DatabaseAccessor<AppDatabase> with _$CompraDaoMixin {
 
   // Stream de compras
   Stream<List<Compra>> watchCompras() {
-    return (select(compras)..orderBy([(c) => OrderingTerm.desc(c.fecha)])).watch();
+    return (select(
+      compras,
+    )..orderBy([(c) => OrderingTerm.desc(c.fecha)])).watch();
   }
 
   // ==================== DETALLES DE COMPRA ====================
 
   // Obtener detalles por compra
   Future<List<CompraDetalle>> getDetallesByCompra(String compraId) {
-    return (select(compraDetalles)..where((d) => d.compraId.equals(compraId))).get();
+    return (select(
+      compraDetalles,
+    )..where((d) => d.compraId.equals(compraId))).get();
   }
 
   // Insertar detalle
@@ -67,24 +75,31 @@ class CompraDao extends DatabaseAccessor<AppDatabase> with _$CompraDaoMixin {
   // Insertar múltiples detalles
   Future<void> insertDetalles(List<CompraDetallesCompanion> detalles) async {
     await batch((batch) {
-      batch.insertAll(compraDetalles, detalles.map((d) => CompraDetalle(
-        id: d.id.value,
-        compraId: d.compraId.value,
-        productoId: d.productoId.value,
-        varianteId: d.varianteId.value,
-        cantidad: d.cantidad.value,
-        precioUnitario: d.precioUnitario.value,
-        subtotal: d.subtotal.value,
-        createdAt: DateTime.now(),
-        syncStatus: 'pendiente',
-      )).toList());
+      batch.insertAll(
+        compraDetalles,
+        detalles
+            .map(
+              (d) => CompraDetalle(
+                id: d.id.value,
+                compraId: d.compraId.value,
+                productoId: d.productoId.value,
+                varianteId: d.varianteId.value,
+                cantidad: d.cantidad.value,
+                precioUnitario: d.precioUnitario.value,
+                subtotal: d.subtotal.value,
+                createdAt: DateTime.now(),
+                syncStatus: 'pendiente',
+              ),
+            )
+            .toList(),
+      );
     });
   }
 
   // ==================== PROVEEDORES ====================
 
   // Obtener todos los proveedores activos
-  Future<List<Proveedore>> getAllProveedores() {
+  Future<List<Proveedor>> getAllProveedores() {
     return (select(proveedores)
           ..where((p) => p.activo.equals(true))
           ..orderBy([(p) => OrderingTerm.asc(p.nombre)]))
@@ -92,8 +107,10 @@ class CompraDao extends DatabaseAccessor<AppDatabase> with _$CompraDaoMixin {
   }
 
   // Obtener proveedor por ID
-  Future<Proveedore?> getProveedorById(String id) {
-    return (select(proveedores)..where((p) => p.id.equals(id))).getSingleOrNull();
+  Future<Proveedor?> getProveedorById(String id) {
+    return (select(
+      proveedores,
+    )..where((p) => p.id.equals(id))).getSingleOrNull();
   }
 
   // Insertar proveedor
@@ -103,7 +120,9 @@ class CompraDao extends DatabaseAccessor<AppDatabase> with _$CompraDaoMixin {
 
   // Actualizar proveedor
   Future<int> updateProveedor(String id, ProveedoresCompanion proveedor) {
-    return (update(proveedores)..where((p) => p.id.equals(id))).write(proveedor);
+    return (update(
+      proveedores,
+    )..where((p) => p.id.equals(id))).write(proveedor);
   }
 
   // Eliminar proveedor (soft delete)
@@ -115,7 +134,9 @@ class CompraDao extends DatabaseAccessor<AppDatabase> with _$CompraDaoMixin {
 
   // Obtener compras pendientes de sincronizar
   Future<List<Compra>> getPendingSync() {
-    return (select(compras)..where((c) => c.syncStatus.equals('pendiente'))).get();
+    return (select(
+      compras,
+    )..where((c) => c.syncStatus.equals('pendiente'))).get();
   }
 
   // Marcar como sincronizado
