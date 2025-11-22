@@ -265,6 +265,34 @@ class SyncService {
         )
         .subscribe();
 
+    // Suscribirse a cambios en tiendas
+    _supabase
+        .channel('public:tiendas')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'tiendas',
+          callback: (payload) {
+            debugPrint('Cambio en tiendas: ${payload.eventType}');
+            _pullFromServer();
+          },
+        )
+        .subscribe();
+
+    // Suscribirse a cambios en almacenes
+    _supabase
+        .channel('public:almacenes')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'almacenes',
+          callback: (payload) {
+            debugPrint('Cambio en almacenes: ${payload.eventType}');
+            _pullFromServer();
+          },
+        )
+        .subscribe();
+
     // Suscribirse a cambios en productos
     _supabase
         .channel('public:productos')

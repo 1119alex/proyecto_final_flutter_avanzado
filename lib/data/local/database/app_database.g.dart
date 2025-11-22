@@ -509,7 +509,7 @@ class TiendasCompanion extends UpdateCompanion<Tienda> {
 }
 
 class $AlmacenesTable extends Almacenes
-    with TableInfo<$AlmacenesTable, Almacene> {
+    with TableInfo<$AlmacenesTable, Almacen> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -621,7 +621,7 @@ class $AlmacenesTable extends Almacenes
   static const String $name = 'almacenes';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Almacene> instance, {
+    Insertable<Almacen> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -683,9 +683,9 @@ class $AlmacenesTable extends Almacenes
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Almacene map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Almacen map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Almacene(
+    return Almacen(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -727,7 +727,7 @@ class $AlmacenesTable extends Almacenes
   }
 }
 
-class Almacene extends DataClass implements Insertable<Almacene> {
+class Almacen extends DataClass implements Insertable<Almacen> {
   final String id;
   final String nombre;
   final String direccion;
@@ -736,7 +736,7 @@ class Almacene extends DataClass implements Insertable<Almacene> {
   final DateTime createdAt;
   final DateTime updatedAt;
   final String syncStatus;
-  const Almacene({
+  const Almacen({
     required this.id,
     required this.nombre,
     required this.direccion,
@@ -777,12 +777,12 @@ class Almacene extends DataClass implements Insertable<Almacene> {
     );
   }
 
-  factory Almacene.fromJson(
+  factory Almacen.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Almacene(
+    return Almacen(
       id: serializer.fromJson<String>(json['id']),
       nombre: serializer.fromJson<String>(json['nombre']),
       direccion: serializer.fromJson<String>(json['direccion']),
@@ -808,7 +808,7 @@ class Almacene extends DataClass implements Insertable<Almacene> {
     };
   }
 
-  Almacene copyWith({
+  Almacen copyWith({
     String? id,
     String? nombre,
     String? direccion,
@@ -817,7 +817,7 @@ class Almacene extends DataClass implements Insertable<Almacene> {
     DateTime? createdAt,
     DateTime? updatedAt,
     String? syncStatus,
-  }) => Almacene(
+  }) => Almacen(
     id: id ?? this.id,
     nombre: nombre ?? this.nombre,
     direccion: direccion ?? this.direccion,
@@ -827,8 +827,8 @@ class Almacene extends DataClass implements Insertable<Almacene> {
     updatedAt: updatedAt ?? this.updatedAt,
     syncStatus: syncStatus ?? this.syncStatus,
   );
-  Almacene copyWithCompanion(AlmacenesCompanion data) {
-    return Almacene(
+  Almacen copyWithCompanion(AlmacenesCompanion data) {
+    return Almacen(
       id: data.id.present ? data.id.value : this.id,
       nombre: data.nombre.present ? data.nombre.value : this.nombre,
       direccion: data.direccion.present ? data.direccion.value : this.direccion,
@@ -844,7 +844,7 @@ class Almacene extends DataClass implements Insertable<Almacene> {
 
   @override
   String toString() {
-    return (StringBuffer('Almacene(')
+    return (StringBuffer('Almacen(')
           ..write('id: $id, ')
           ..write('nombre: $nombre, ')
           ..write('direccion: $direccion, ')
@@ -871,7 +871,7 @@ class Almacene extends DataClass implements Insertable<Almacene> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Almacene &&
+      (other is Almacen &&
           other.id == this.id &&
           other.nombre == this.nombre &&
           other.direccion == this.direccion &&
@@ -882,7 +882,7 @@ class Almacene extends DataClass implements Insertable<Almacene> {
           other.syncStatus == this.syncStatus);
 }
 
-class AlmacenesCompanion extends UpdateCompanion<Almacene> {
+class AlmacenesCompanion extends UpdateCompanion<Almacen> {
   final Value<String> id;
   final Value<String> nombre;
   final Value<String> direccion;
@@ -916,7 +916,7 @@ class AlmacenesCompanion extends UpdateCompanion<Almacene> {
   }) : id = Value(id),
        nombre = Value(nombre),
        direccion = Value(direccion);
-  static Insertable<Almacene> custom({
+  static Insertable<Almacen> custom({
     Expression<String>? id,
     Expression<String>? nombre,
     Expression<String>? direccion,
@@ -11431,7 +11431,7 @@ typedef $$AlmacenesTableUpdateCompanionBuilder =
     });
 
 final class $$AlmacenesTableReferences
-    extends BaseReferences<_$AppDatabase, $AlmacenesTable, Almacene> {
+    extends BaseReferences<_$AppDatabase, $AlmacenesTable, Almacen> {
   $$AlmacenesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static MultiTypedResultKey<$UsuariosTable, List<Usuario>> _usuariosRefsTable(
@@ -11862,14 +11862,14 @@ class $$AlmacenesTableTableManager
         RootTableManager<
           _$AppDatabase,
           $AlmacenesTable,
-          Almacene,
+          Almacen,
           $$AlmacenesTableFilterComposer,
           $$AlmacenesTableOrderingComposer,
           $$AlmacenesTableAnnotationComposer,
           $$AlmacenesTableCreateCompanionBuilder,
           $$AlmacenesTableUpdateCompanionBuilder,
-          (Almacene, $$AlmacenesTableReferences),
-          Almacene,
+          (Almacen, $$AlmacenesTableReferences),
+          Almacen,
           PrefetchHooks Function({
             bool usuariosRefs,
             bool inventarioRefs,
@@ -11960,7 +11960,7 @@ class $$AlmacenesTableTableManager
                     return [
                       if (usuariosRefs)
                         await $_getPrefetchedData<
-                          Almacene,
+                          Almacen,
                           $AlmacenesTable,
                           Usuario
                         >(
@@ -11981,7 +11981,7 @@ class $$AlmacenesTableTableManager
                         ),
                       if (inventarioRefs)
                         await $_getPrefetchedData<
-                          Almacene,
+                          Almacen,
                           $AlmacenesTable,
                           InventarioData
                         >(
@@ -12002,7 +12002,7 @@ class $$AlmacenesTableTableManager
                         ),
                       if (comprasRefs)
                         await $_getPrefetchedData<
-                          Almacene,
+                          Almacen,
                           $AlmacenesTable,
                           Compra
                         >(
@@ -12023,7 +12023,7 @@ class $$AlmacenesTableTableManager
                         ),
                       if (movimientosInventarioRefs)
                         await $_getPrefetchedData<
-                          Almacene,
+                          Almacen,
                           $AlmacenesTable,
                           MovimientosInventarioData
                         >(
@@ -12054,14 +12054,14 @@ typedef $$AlmacenesTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
       $AlmacenesTable,
-      Almacene,
+      Almacen,
       $$AlmacenesTableFilterComposer,
       $$AlmacenesTableOrderingComposer,
       $$AlmacenesTableAnnotationComposer,
       $$AlmacenesTableCreateCompanionBuilder,
       $$AlmacenesTableUpdateCompanionBuilder,
-      (Almacene, $$AlmacenesTableReferences),
-      Almacene,
+      (Almacen, $$AlmacenesTableReferences),
+      Almacen,
       PrefetchHooks Function({
         bool usuariosRefs,
         bool inventarioRefs,

@@ -9,11 +9,15 @@ import 'core/router/app_router.dart';
 import 'core/network/connectivity_service.dart';
 import 'data/repositories/auth_repository.dart';
 import 'data/repositories/categorias_repository.dart';
+import 'data/repositories/tiendas_repository.dart';
+import 'data/repositories/almacenes_repository.dart';
 import 'data/sync/sync_service.dart';
 import 'presentation/blocs/auth/auth_bloc.dart';
 import 'presentation/blocs/connectivity/connectivity_bloc.dart';
 import 'presentation/blocs/theme/theme_bloc.dart';
 import 'presentation/blocs/categorias/categorias_bloc.dart';
+import 'presentation/blocs/tiendas/tiendas_bloc.dart';
+import 'presentation/blocs/almacenes/almacenes_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,6 +63,16 @@ class MyApp extends StatelessWidget {
         // Categorias Bloc
         BlocProvider<CategoriasBloc>(
           create: (context) => CategoriasBloc(getIt<CategoriasRepository>()),
+        ),
+
+        // Tiendas Bloc
+        BlocProvider<TiendasBloc>(
+          create: (context) => TiendasBloc(getIt<TiendasRepository>()),
+        ),
+
+        // Almacenes Bloc
+        BlocProvider<AlmacenesBloc>(
+          create: (context) => AlmacenesBloc(getIt<AlmacenesRepository>()),
         ),
       ],
       child: Builder(

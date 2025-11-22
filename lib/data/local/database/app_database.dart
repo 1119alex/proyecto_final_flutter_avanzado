@@ -14,13 +14,15 @@ class Usuarios extends Table {
   TextColumn get email => text().unique()();
   TextColumn get nombre => text()();
   TextColumn get apellido => text()();
-  TextColumn get rol => text()(); // admin, encargado_tienda, encargado_almacen, vendedor
+  TextColumn get rol =>
+      text()(); // admin, encargado_tienda, encargado_almacen, vendedor
   TextColumn get tiendaId => text().nullable().references(Tiendas, #id)();
   TextColumn get almacenId => text().nullable().references(Almacenes, #id)();
   BoolColumn get activo => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -35,13 +37,15 @@ class Tiendas extends Table {
   BoolColumn get activo => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
 }
 
 /// Tabla de almacenes
+@DataClassName('Almacen')
 class Almacenes extends Table {
   TextColumn get id => text()();
   TextColumn get nombre => text()();
@@ -50,7 +54,8 @@ class Almacenes extends Table {
   BoolColumn get activo => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -65,7 +70,8 @@ class Categorias extends Table {
   BoolColumn get activo => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -86,7 +92,8 @@ class Productos extends Table {
   BoolColumn get activo => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -102,7 +109,8 @@ class ProductoVariantes extends Table {
   BoolColumn get activo => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -112,12 +120,14 @@ class ProductoVariantes extends Table {
 class Inventario extends Table {
   TextColumn get id => text()();
   TextColumn get productoId => text().references(Productos, #id)();
-  TextColumn get varianteId => text().nullable().references(ProductoVariantes, #id)();
+  TextColumn get varianteId =>
+      text().nullable().references(ProductoVariantes, #id)();
   TextColumn get tiendaId => text().nullable().references(Tiendas, #id)();
   TextColumn get almacenId => text().nullable().references(Almacenes, #id)();
   IntColumn get cantidad => integer().withDefault(const Constant(0))();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -134,7 +144,8 @@ class Proveedores extends Table {
   BoolColumn get activo => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -152,7 +163,8 @@ class Compras extends Table {
   TextColumn get estado => text().withDefault(const Constant('completada'))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -163,12 +175,14 @@ class CompraDetalles extends Table {
   TextColumn get id => text()();
   TextColumn get compraId => text().references(Compras, #id)();
   TextColumn get productoId => text().references(Productos, #id)();
-  TextColumn get varianteId => text().nullable().references(ProductoVariantes, #id)();
+  TextColumn get varianteId =>
+      text().nullable().references(ProductoVariantes, #id)();
   IntColumn get cantidad => integer()();
   RealColumn get precioUnitario => real()();
   RealColumn get subtotal => real()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -185,7 +199,8 @@ class Clientes extends Table {
   BoolColumn get activo => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -206,7 +221,8 @@ class Ventas extends Table {
   TextColumn get observaciones => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -217,13 +233,15 @@ class VentaDetalles extends Table {
   TextColumn get id => text()();
   TextColumn get ventaId => text().references(Ventas, #id)();
   TextColumn get productoId => text().references(Productos, #id)();
-  TextColumn get varianteId => text().nullable().references(ProductoVariantes, #id)();
+  TextColumn get varianteId =>
+      text().nullable().references(ProductoVariantes, #id)();
   IntColumn get cantidad => integer()();
   RealColumn get precioUnitario => real()();
   RealColumn get descuento => real().withDefault(const Constant(0))();
   RealColumn get subtotal => real()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -234,15 +252,21 @@ class Transferencias extends Table {
   TextColumn get id => text()();
   TextColumn get usuarioId => text().references(Usuarios, #id)();
   TextColumn get origenTiendaId => text().nullable().references(Tiendas, #id)();
-  TextColumn get origenAlmacenId => text().nullable().references(Almacenes, #id)();
-  TextColumn get destinoTiendaId => text().nullable().references(Tiendas, #id)();
-  TextColumn get destinoAlmacenId => text().nullable().references(Almacenes, #id)();
+  TextColumn get origenAlmacenId =>
+      text().nullable().references(Almacenes, #id)();
+  TextColumn get destinoTiendaId =>
+      text().nullable().references(Tiendas, #id)();
+  TextColumn get destinoAlmacenId =>
+      text().nullable().references(Almacenes, #id)();
   DateTimeColumn get fecha => dateTime()();
-  TextColumn get estado => text().withDefault(const Constant('pendiente'))(); // pendiente, en_transito, completada, cancelada
+  TextColumn get estado => text().withDefault(
+    const Constant('pendiente'),
+  )(); // pendiente, en_transito, completada, cancelada
   TextColumn get observaciones => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -253,10 +277,12 @@ class TransferenciaDetalles extends Table {
   TextColumn get id => text()();
   TextColumn get transferenciaId => text().references(Transferencias, #id)();
   TextColumn get productoId => text().references(Productos, #id)();
-  TextColumn get varianteId => text().nullable().references(ProductoVariantes, #id)();
+  TextColumn get varianteId =>
+      text().nullable().references(ProductoVariantes, #id)();
   IntColumn get cantidad => integer()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -266,20 +292,25 @@ class TransferenciaDetalles extends Table {
 class MovimientosInventario extends Table {
   TextColumn get id => text()();
   TextColumn get productoId => text().references(Productos, #id)();
-  TextColumn get varianteId => text().nullable().references(ProductoVariantes, #id)();
+  TextColumn get varianteId =>
+      text().nullable().references(ProductoVariantes, #id)();
   TextColumn get tiendaId => text().nullable().references(Tiendas, #id)();
   TextColumn get almacenId => text().nullable().references(Almacenes, #id)();
   TextColumn get usuarioId => text().references(Usuarios, #id)();
-  TextColumn get tipoMovimiento => text()(); // entrada, salida, transferencia, ajuste
+  TextColumn get tipoMovimiento =>
+      text()(); // entrada, salida, transferencia, ajuste
   IntColumn get cantidad => integer()();
   IntColumn get stockAnterior => integer()();
   IntColumn get stockNuevo => integer()();
-  TextColumn get referenciaId => text().nullable()(); // ID de compra, venta o transferencia
-  TextColumn get referenciaTipo => text().nullable()(); // compra, venta, transferencia
+  TextColumn get referenciaId =>
+      text().nullable()(); // ID de compra, venta o transferencia
+  TextColumn get referenciaTipo =>
+      text().nullable()(); // compra, venta, transferencia
   TextColumn get observaciones => text().nullable()();
   DateTimeColumn get fecha => dateTime()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get syncStatus => text().withDefault(const Constant('pendiente'))();
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pendiente'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -300,25 +331,27 @@ class SyncQueue extends Table {
 
 // ==================== DATABASE ====================
 
-@DriftDatabase(tables: [
-  Usuarios,
-  Tiendas,
-  Almacenes,
-  Categorias,
-  Productos,
-  ProductoVariantes,
-  Inventario,
-  Proveedores,
-  Compras,
-  CompraDetalles,
-  Clientes,
-  Ventas,
-  VentaDetalles,
-  Transferencias,
-  TransferenciaDetalles,
-  MovimientosInventario,
-  SyncQueue,
-])
+@DriftDatabase(
+  tables: [
+    Usuarios,
+    Tiendas,
+    Almacenes,
+    Categorias,
+    Productos,
+    ProductoVariantes,
+    Inventario,
+    Proveedores,
+    Compras,
+    CompraDetalles,
+    Clientes,
+    Ventas,
+    VentaDetalles,
+    Transferencias,
+    TransferenciaDetalles,
+    MovimientosInventario,
+    SyncQueue,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 

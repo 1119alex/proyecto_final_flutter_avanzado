@@ -22,7 +22,9 @@ class UsuarioDao extends DatabaseAccessor<AppDatabase> with _$UsuarioDaoMixin {
 
   // Obtener usuario por email
   Future<Usuario?> getUsuarioByEmail(String email) {
-    return (select(usuarios)..where((u) => u.email.equals(email))).getSingleOrNull();
+    return (select(
+      usuarios,
+    )..where((u) => u.email.equals(email))).getSingleOrNull();
   }
 
   // Obtener usuarios por rol
@@ -94,7 +96,7 @@ class UsuarioDao extends DatabaseAccessor<AppDatabase> with _$UsuarioDaoMixin {
   // ==================== ALMACENES ====================
 
   // Obtener todos los almacenes activos
-  Future<List<Almacene>> getAllAlmacenes() {
+  Future<List<Almacen>> getAllAlmacenes() {
     return (select(almacenes)
           ..where((a) => a.activo.equals(true))
           ..orderBy([(a) => OrderingTerm.asc(a.nombre)]))
@@ -102,7 +104,7 @@ class UsuarioDao extends DatabaseAccessor<AppDatabase> with _$UsuarioDaoMixin {
   }
 
   // Obtener almacén por ID
-  Future<Almacene?> getAlmacenById(String id) {
+  Future<Almacen?> getAlmacenById(String id) {
     return (select(almacenes)..where((a) => a.id.equals(id))).getSingleOrNull();
   }
 
@@ -117,7 +119,7 @@ class UsuarioDao extends DatabaseAccessor<AppDatabase> with _$UsuarioDaoMixin {
   }
 
   // Stream de almacenes
-  Stream<List<Almacene>> watchAlmacenes() {
+  Stream<List<Almacen>> watchAlmacenes() {
     return (select(almacenes)
           ..where((a) => a.activo.equals(true))
           ..orderBy([(a) => OrderingTerm.asc(a.nombre)]))
@@ -126,7 +128,9 @@ class UsuarioDao extends DatabaseAccessor<AppDatabase> with _$UsuarioDaoMixin {
 
   // Obtener usuarios pendientes de sincronizar
   Future<List<Usuario>> getPendingSync() {
-    return (select(usuarios)..where((u) => u.syncStatus.equals('pendiente'))).get();
+    return (select(
+      usuarios,
+    )..where((u) => u.syncStatus.equals('pendiente'))).get();
   }
 
   // Marcar como sincronizado

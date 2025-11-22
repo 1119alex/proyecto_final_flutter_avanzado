@@ -3,9 +3,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../network/connectivity_service.dart';
 import '../../data/local/database/app_database.dart';
 import '../../data/local/daos/categoria_dao.dart';
+import '../../data/local/daos/tienda_dao.dart';
+import '../../data/local/daos/almacen_dao.dart';
 import '../../data/sync/sync_service.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/categorias_repository.dart';
+import '../../data/repositories/tiendas_repository.dart';
+import '../../data/repositories/almacenes_repository.dart';
 
 final getIt = GetIt.instance;
 
@@ -25,6 +29,12 @@ Future<void> configureDependencies() async {
     () => CategoriaDao(getIt<AppDatabase>()),
   );
 
+  getIt.registerLazySingleton<TiendaDao>(() => TiendaDao(getIt<AppDatabase>()));
+
+  getIt.registerLazySingleton<AlmacenDao>(
+    () => AlmacenDao(getIt<AppDatabase>()),
+  );
+
   // Servicio de sincronización (debe registrarse antes de repositorios que lo usen)
   getIt.registerLazySingleton<SyncService>(
     () => SyncService(
@@ -41,5 +51,13 @@ Future<void> configureDependencies() async {
 
   getIt.registerLazySingleton<CategoriasRepository>(
     () => CategoriasRepository(getIt<CategoriaDao>()),
+  );
+
+  getIt.registerLazySingleton<TiendasRepository>(
+    () => TiendasRepository(getIt<TiendaDao>()),
+  );
+
+  getIt.registerLazySingleton<AlmacenesRepository>(
+    () => AlmacenesRepository(getIt<AlmacenDao>()),
   );
 }
