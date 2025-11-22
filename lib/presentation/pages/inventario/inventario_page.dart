@@ -363,6 +363,10 @@ class _InventarioPageState extends State<InventarioPage> {
   }
 
   void _mostrarFiltros(BuildContext context) {
+    // Recargar datos antes de mostrar filtros
+    context.read<TiendasBloc>().add(const LoadTiendas());
+    context.read<AlmacenesBloc>().add(const LoadAlmacenes());
+
     showModalBottomSheet(
       context: context,
       builder: (sheetContext) => Padding(
@@ -588,6 +592,11 @@ class _InventarioPageState extends State<InventarioPage> {
   }
 
   void _mostrarFormularioInventario(BuildContext context) {
+    // Recargar datos antes de abrir el diálogo
+    context.read<TiendasBloc>().add(const LoadTiendas());
+    context.read<AlmacenesBloc>().add(const LoadAlmacenes());
+    context.read<ProductosBloc>().add(const LoadProductos());
+
     String? productoSeleccionado;
     String? tiendaSeleccionada;
     String? almacenSeleccionado;
@@ -597,105 +606,114 @@ class _InventarioPageState extends State<InventarioPage> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Agregar Stock'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              BlocBuilder<ProductosBloc, ProductosState>(
-                builder: (context, state) {
-                  if (state is ProductosLoaded) {
-                    return DropdownButtonFormField<String>(
-                      value: productoSeleccionado,
-                      decoration: const InputDecoration(
-                        labelText: 'Producto *',
-                        prefixIcon: Icon(Icons.inventory_2),
-                      ),
-                      items: state.productos
-                          .map(
-                            (p) => DropdownMenuItem(
-                              value: p.id,
-                              child: Text(p.nombre),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (v) => productoSeleccionado = v,
-                    );
-                  }
-                  return const CircularProgressIndicator();
-                },
-              ),
-              const SizedBox(height: 12),
-              BlocBuilder<TiendasBloc, TiendasState>(
-                builder: (context, state) {
-                  if (state is TiendasLoaded) {
-                    return DropdownButtonFormField<String?>(
-                      value: tiendaSeleccionada,
-                      decoration: const InputDecoration(
-                        labelText: 'Tienda (opcional)',
-                        prefixIcon: Icon(Icons.store),
-                      ),
-                      items: [
-                        const DropdownMenuItem(
-                          value: null,
-                          child: Text('Ninguna'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                BlocBuilder<ProductosBloc, ProductosState>(
+                  builder: (context, state) {
+                    if (state is ProductosLoaded) {
+                      return DropdownButtonFormField<String>(
+                        value: productoSeleccionado,
+                        decoration: const InputDecoration(
+                          labelText: 'Producto *',
+                          prefixIcon: Icon(Icons.inventory_2),
                         ),
-                        ...state.tiendas.map(
-                          (t) => DropdownMenuItem(
-                            value: t.id,
-                            child: Text(t.nombre),
-                          ),
-                        ),
-                      ],
-                      onChanged: (v) {
-                        tiendaSeleccionada = v;
-                        if (v != null) almacenSeleccionado = null;
-                      },
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-              const SizedBox(height: 12),
-              BlocBuilder<AlmacenesBloc, AlmacenesState>(
-                builder: (context, state) {
-                  if (state is AlmacenesLoaded) {
-                    return DropdownButtonFormField<String?>(
-                      value: almacenSeleccionado,
-                      decoration: const InputDecoration(
-                        labelText: 'Almacen (opcional)',
-                        prefixIcon: Icon(Icons.warehouse),
-                      ),
-                      items: [
-                        const DropdownMenuItem(
-                          value: null,
-                          child: Text('Ninguno'),
-                        ),
-                        ...state.almacenes.map(
-                          (a) => DropdownMenuItem(
-                            value: a.id,
-                            child: Text(a.nombre),
-                          ),
-                        ),
-                      ],
-                      onChanged: (v) {
-                        almacenSeleccionado = v;
-                        if (v != null) tiendaSeleccionada = null;
-                      },
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: cantidadController,
-                decoration: const InputDecoration(
-                  labelText: 'Cantidad *',
-                  prefixIcon: Icon(Icons.numbers),
+                        items: state.productos
+                            .map(
+                              (p) => DropdownMenuItem(
+                                value: p.id,
+                                child: Text(p.nombre),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (v) => productoSeleccionado = v,
+                      );
+                    }
+                    return const CircularProgressIndicator();
+                  },
                 ),
-                keyboardType: TextInputType.number,
-              ),
-            ],
+                const SizedBox(height: 12),
+                BlocBuilder<TiendasBloc, TiendasState>(
+                  builder: (context, state) {
+                    if (state is TiendasLoaded) {
+                      return DropdownButtonFormField<String?>(
+                        value: tiendaSeleccionada,
+                        decoration: const InputDecoration(
+                          labelText: 'Tienda (opcional)',
+                          prefixIcon: Icon(Icons.store),
+                        ),
+                        items: [
+                          const DropdownMenuItem(
+                            value: null,
+                            child: Text('Ninguna'),
+                          ),
+                          ...state.tiendas.map(
+                            (t) => DropdownMenuItem(
+                              value: t.id,
+                              child: Text(
+                                t.nombre,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                        ],
+                        onChanged: (v) {
+                          tiendaSeleccionada = v;
+                          if (v != null) almacenSeleccionado = null;
+                        },
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+                const SizedBox(height: 12),
+                BlocBuilder<AlmacenesBloc, AlmacenesState>(
+                  builder: (context, state) {
+                    if (state is AlmacenesLoaded) {
+                      return DropdownButtonFormField<String?>(
+                        value: almacenSeleccionado,
+                        decoration: const InputDecoration(
+                          labelText: 'Almacen (opcional)',
+                          prefixIcon: Icon(Icons.warehouse),
+                        ),
+                        items: [
+                          const DropdownMenuItem(
+                            value: null,
+                            child: Text('Ninguno'),
+                          ),
+                          ...state.almacenes.map(
+                            (a) => DropdownMenuItem(
+                              value: a.id,
+                              child: Text(
+                                a.nombre,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                        ],
+                        onChanged: (v) {
+                          almacenSeleccionado = v;
+                          if (v != null) tiendaSeleccionada = null;
+                        },
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: cantidadController,
+                  decoration: const InputDecoration(
+                    labelText: 'Cantidad *',
+                    prefixIcon: Icon(Icons.numbers),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+            ),
           ),
         ),
         actions: [
