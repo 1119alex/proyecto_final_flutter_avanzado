@@ -26,6 +26,7 @@ import '../../data/repositories/ventas_repository.dart';
 import '../../data/repositories/compras_repository.dart';
 import '../../data/repositories/transferencias_repository.dart';
 import '../../data/repositories/usuarios_repository.dart';
+import '../../data/repositories/reportes_repository.dart';
 
 final getIt = GetIt.instance;
 
@@ -135,5 +136,9 @@ Future<void> configureDependencies() async {
 
   getIt.registerLazySingleton<UsuariosRepository>(
     () => UsuariosRepository(getIt<UsuarioDao>()),
+  );
+
+  getIt.registerLazySingleton<ReportesRepository>(
+    () => ReportesRepository(getIt<AppDatabase>()),
   );
 }

@@ -29,11 +29,13 @@ import 'data/repositories/ventas_repository.dart';
 import 'data/repositories/compras_repository.dart';
 import 'data/repositories/transferencias_repository.dart';
 import 'data/repositories/usuarios_repository.dart';
+import 'data/repositories/reportes_repository.dart';
 import 'presentation/blocs/inventario/inventario_bloc.dart';
 import 'presentation/blocs/ventas/ventas_bloc.dart';
 import 'presentation/blocs/compras/compras_bloc.dart';
 import 'presentation/blocs/transferencias/transferencias_bloc.dart';
 import 'presentation/blocs/usuarios/usuarios_bloc.dart';
+import 'presentation/blocs/reportes/reportes_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -130,6 +132,11 @@ class MyApp extends StatelessWidget {
         // Usuarios Bloc
         BlocProvider<UsuariosBloc>(
           create: (context) => UsuariosBloc(getIt<UsuariosRepository>()),
+        ),
+
+        // Reportes Bloc
+        BlocProvider<ReportesBloc>(
+          create: (context) => ReportesBloc(getIt<ReportesRepository>()),
         ),
       ],
       child: Builder(

@@ -1,13 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/connectivity/connectivity_bloc.dart';
 import '../../blocs/theme/theme_bloc.dart';
+import '../../blocs/reportes/reportes_bloc.dart';
+import '../../blocs/reportes/reportes_event.dart';
+import '../../blocs/reportes/reportes_state.dart';
 import '../../../core/theme/app_theme.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Cargar métricas del dashboard al iniciar
+    context.read<ReportesBloc>().add(const LoadDashboardMetrics());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,17 +41,22 @@ class DashboardPage extends StatelessWidget {
                   avatar: Icon(
                     isOnline ? Icons.cloud_done : Icons.cloud_off,
                     size: 18,
-                    color: isOnline ? AppTheme.successColor : AppTheme.errorColor,
+                    color: isOnline
+                        ? AppTheme.successColor
+                        : AppTheme.errorColor,
                   ),
                   label: Text(
                     isOnline ? 'Online' : 'Offline',
                     style: TextStyle(
                       fontSize: 12,
-                      color: isOnline ? AppTheme.successColor : AppTheme.errorColor,
+                      color: isOnline
+                          ? AppTheme.successColor
+                          : AppTheme.errorColor,
                     ),
                   ),
-                  backgroundColor: (isOnline ? AppTheme.successColor : AppTheme.errorColor)
-                      .withOpacity(0.1),
+                  backgroundColor:
+                      (isOnline ? AppTheme.successColor : AppTheme.errorColor)
+                          .withOpacity(0.1),
                 ),
               );
             },
@@ -114,37 +135,45 @@ class DashboardPage extends StatelessWidget {
             context.go('/login');
           }
         },
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Resumen del día
-              _buildSummaryCards(context),
-              const SizedBox(height: 24),
+        child: RefreshIndicator(
+          onRefresh: () async {
+            context.read<ReportesBloc>().add(const LoadDashboardMetrics());
+            // Esperar un poco para que se complete la carga
+            await Future.delayed(const Duration(seconds: 1));
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Resumen del día
+                _buildSummaryCards(context),
+                const SizedBox(height: 24),
 
-              // Menú principal
-              Text(
-                'Menú Principal',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 16),
-              _buildMainMenu(context),
+                // Menú principal
+                Text(
+                  'Menú Principal',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                _buildMainMenu(context),
 
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-              // Accesos rápidos
-              Text(
-                'Operaciones Rápidas',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 16),
-              _buildQuickActions(context),
-            ],
+                // Accesos rápidos
+                Text(
+                  'Operaciones Rápidas',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                _buildQuickActions(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -152,39 +181,104 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _buildSummaryCards(BuildContext context) {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 1.5,
-      children: [
-        _SummaryCard(
-          title: 'Ventas Hoy',
-          value: 'Bs. 0.00',
-          icon: Icons.point_of_sale,
-          color: AppTheme.successColor,
-        ),
-        _SummaryCard(
-          title: 'Productos',
-          value: '0',
-          icon: Icons.inventory_2,
-          color: AppTheme.primaryColor,
-        ),
-        _SummaryCard(
-          title: 'Stock Bajo',
-          value: '0',
-          icon: Icons.warning_amber,
-          color: AppTheme.warningColor,
-        ),
-        _SummaryCard(
-          title: 'Pendientes',
-          value: '0',
-          icon: Icons.sync_problem,
-          color: AppTheme.infoColor,
-        ),
-      ],
+    return BlocBuilder<ReportesBloc, ReportesState>(
+      builder: (context, state) {
+        if (state is DashboardMetricsLoaded) {
+          final currencyFormat = NumberFormat.currency(
+            symbol: 'Bs. ',
+            decimalDigits: 2,
+          );
+
+          return GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.5,
+            children: [
+              _SummaryCard(
+                title: 'Ventas Hoy',
+                value: currencyFormat.format(state.ventasHoy),
+                icon: Icons.point_of_sale,
+                color: AppTheme.successColor,
+              ),
+              _SummaryCard(
+                title: 'Productos',
+                value: state.productosTotal.toString(),
+                icon: Icons.inventory_2,
+                color: AppTheme.primaryColor,
+              ),
+              _SummaryCard(
+                title: 'Stock Bajo',
+                value: state.productosBajoStock.toString(),
+                icon: Icons.warning_amber,
+                color: AppTheme.warningColor,
+              ),
+              _SummaryCard(
+                title: 'Pendientes',
+                value: state.ventasPendientes.toString(),
+                icon: Icons.sync_problem,
+                color: AppTheme.infoColor,
+              ),
+            ],
+          );
+        }
+
+        // Estado de carga
+        if (state is ReportesLoading) {
+          return GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.5,
+            children: const [
+              _SummaryCardLoading(),
+              _SummaryCardLoading(),
+              _SummaryCardLoading(),
+              _SummaryCardLoading(),
+            ],
+          );
+        }
+
+        // Estado por defecto (inicial o error)
+        return GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.5,
+          children: [
+            _SummaryCard(
+              title: 'Ventas Hoy',
+              value: 'Bs. 0.00',
+              icon: Icons.point_of_sale,
+              color: AppTheme.successColor,
+            ),
+            _SummaryCard(
+              title: 'Productos',
+              value: '0',
+              icon: Icons.inventory_2,
+              color: AppTheme.primaryColor,
+            ),
+            _SummaryCard(
+              title: 'Stock Bajo',
+              value: '0',
+              icon: Icons.warning_amber,
+              color: AppTheme.warningColor,
+            ),
+            _SummaryCard(
+              title: 'Pendientes',
+              value: '0',
+              icon: Icons.sync_problem,
+              color: AppTheme.infoColor,
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -364,15 +458,77 @@ class _SummaryCard extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SummaryCardLoading extends StatelessWidget {
+  const _SummaryCardLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 80,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  width: 60,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ],
             ),
@@ -426,9 +582,9 @@ class _MenuCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 item.title,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -436,9 +592,9 @@ class _MenuCard extends StatelessWidget {
               Text(
                 item.subtitle,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                      fontSize: 10,
-                    ),
+                  color: Colors.grey[600],
+                  fontSize: 10,
+                ),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
