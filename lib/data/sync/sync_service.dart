@@ -322,6 +322,46 @@ class SyncService {
               );
         }
       });
+
+      // Sincronizar compras
+      await _syncTable('compras', (data) async {
+        for (final item in data) {
+          await _db
+              .into(_db.compras)
+              .insertOnConflictUpdate(
+                ComprasCompanion.insert(
+                  id: item['id'],
+                  proveedorId: item['proveedor_id'],
+                  almacenId: item['almacen_id'],
+                  usuarioId: item['usuario_id'],
+                  fecha: DateTime.parse(item['fecha']),
+                  total: Value(item['total']?.toDouble() ?? 0),
+                  observaciones: Value(item['observaciones']),
+                  estado: Value(item['estado'] ?? 'completada'),
+                  syncStatus: const Value('sincronizado'),
+                ),
+              );
+        }
+      });
+
+      // Sincronizar detalles de compras
+      await _syncTable('compra_detalles', (data) async {
+        for (final item in data) {
+          await _db
+              .into(_db.compraDetalles)
+              .insertOnConflictUpdate(
+                CompraDetallesCompanion.insert(
+                  id: item['id'],
+                  compraId: item['compra_id'],
+                  productoId: item['producto_id'],
+                  varianteId: Value(item['variante_id']),
+                  cantidad: item['cantidad'] ?? 1,
+                  precioUnitario: item['precio_unitario']?.toDouble() ?? 0,
+                  subtotal: item['subtotal']?.toDouble() ?? 0,
+                ),
+              );
+        }
+      });
     } catch (e) {
       debugPrint('Error descargando datos: $e');
     }
@@ -487,6 +527,34 @@ class SyncService {
           table: 'venta_detalles',
           callback: (payload) {
             debugPrint('Cambio en venta_detalles: ${payload.eventType}');
+            _pullFromServer();
+          },
+        )
+        .subscribe();
+
+    // Suscribirse a cambios en compras
+    _supabase
+        .channel('public:compras')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'compras',
+          callback: (payload) {
+            debugPrint('Cambio en compras: ${payload.eventType}');
+            _pullFromServer();
+          },
+        )
+        .subscribe();
+
+    // Suscribirse a cambios en compra_detalles
+    _supabase
+        .channel('public:compra_detalles')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'compra_detalles',
+          callback: (payload) {
+            debugPrint('Cambio en compra_detalles: ${payload.eventType}');
             _pullFromServer();
           },
         )
