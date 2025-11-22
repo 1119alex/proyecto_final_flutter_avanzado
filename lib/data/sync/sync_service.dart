@@ -362,6 +362,45 @@ class SyncService {
               );
         }
       });
+
+      // Sincronizar transferencias
+      await _syncTable('transferencias', (data) async {
+        for (final item in data) {
+          await _db
+              .into(_db.transferencias)
+              .insertOnConflictUpdate(
+                TransferenciasCompanion.insert(
+                  id: item['id'],
+                  usuarioId: item['usuario_id'],
+                  origenTiendaId: Value(item['origen_tienda_id']),
+                  origenAlmacenId: Value(item['origen_almacen_id']),
+                  destinoTiendaId: Value(item['destino_tienda_id']),
+                  destinoAlmacenId: Value(item['destino_almacen_id']),
+                  fecha: DateTime.parse(item['fecha']),
+                  estado: Value(item['estado'] ?? 'pendiente'),
+                  observaciones: Value(item['observaciones']),
+                  syncStatus: const Value('sincronizado'),
+                ),
+              );
+        }
+      });
+
+      // Sincronizar detalles de transferencias
+      await _syncTable('transferencia_detalles', (data) async {
+        for (final item in data) {
+          await _db
+              .into(_db.transferenciaDetalles)
+              .insertOnConflictUpdate(
+                TransferenciaDetallesCompanion.insert(
+                  id: item['id'],
+                  transferenciaId: item['transferencia_id'],
+                  productoId: item['producto_id'],
+                  varianteId: Value(item['variante_id']),
+                  cantidad: item['cantidad'] ?? 1,
+                ),
+              );
+        }
+      });
     } catch (e) {
       debugPrint('Error descargando datos: $e');
     }
@@ -555,6 +594,36 @@ class SyncService {
           table: 'compra_detalles',
           callback: (payload) {
             debugPrint('Cambio en compra_detalles: ${payload.eventType}');
+            _pullFromServer();
+          },
+        )
+        .subscribe();
+
+    // Suscribirse a cambios en transferencias
+    _supabase
+        .channel('public:transferencias')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'transferencias',
+          callback: (payload) {
+            debugPrint('Cambio en transferencias: ${payload.eventType}');
+            _pullFromServer();
+          },
+        )
+        .subscribe();
+
+    // Suscribirse a cambios en transferencia_detalles
+    _supabase
+        .channel('public:transferencia_detalles')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'transferencia_detalles',
+          callback: (payload) {
+            debugPrint(
+              'Cambio en transferencia_detalles: ${payload.eventType}',
+            );
             _pullFromServer();
           },
         )
