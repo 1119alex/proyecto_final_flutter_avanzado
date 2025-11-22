@@ -20,6 +20,9 @@ import '../../presentation/pages/empleados/empleados_page.dart';
 import '../../presentation/pages/clientes/clientes_page.dart';
 import '../../presentation/pages/proveedores/proveedores_page.dart';
 import '../../presentation/pages/reportes/reportes_page.dart';
+import '../../presentation/pages/reportes/reporte_ventas_page.dart';
+import '../../presentation/pages/reportes/reporte_compras_page.dart';
+import '../../presentation/pages/reportes/reporte_inventario_page.dart';
 
 class AppRouter {
   final AuthBloc authBloc;
@@ -32,7 +35,8 @@ class AppRouter {
     redirect: (context, state) {
       final authState = authBloc.state;
       final isAuthenticated = authState is AuthAuthenticated;
-      final isLoggingIn = state.matchedLocation == '/login' ||
+      final isLoggingIn =
+          state.matchedLocation == '/login' ||
           state.matchedLocation == '/register';
 
       if (!isAuthenticated && !isLoggingIn) {
@@ -80,9 +84,8 @@ class AppRouter {
       GoRoute(
         path: '/productos/:id',
         name: 'producto-editar',
-        builder: (context, state) => ProductoFormPage(
-          productoId: state.pathParameters['id'],
-        ),
+        builder: (context, state) =>
+            ProductoFormPage(productoId: state.pathParameters['id']),
       ),
 
       // Categorías
@@ -171,11 +174,24 @@ class AppRouter {
         name: 'reportes',
         builder: (context, state) => const ReportesPage(),
       ),
+      GoRoute(
+        path: '/reportes/ventas',
+        name: 'reporte-ventas',
+        builder: (context, state) => const ReporteVentasPage(),
+      ),
+      GoRoute(
+        path: '/reportes/compras',
+        name: 'reporte-compras',
+        builder: (context, state) => const ReporteComprasPage(),
+      ),
+      GoRoute(
+        path: '/reportes/inventario',
+        name: 'reporte-inventario',
+        builder: (context, state) => const ReporteInventarioPage(),
+      ),
     ],
     errorBuilder: (context, state) => Scaffold(
-      body: Center(
-        child: Text('Página no encontrada: ${state.uri}'),
-      ),
+      body: Center(child: Text('Página no encontrada: ${state.uri}')),
     ),
   );
 }

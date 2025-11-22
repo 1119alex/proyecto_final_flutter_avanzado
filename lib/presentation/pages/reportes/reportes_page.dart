@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../blocs/reportes/reportes_bloc.dart';
@@ -341,10 +342,7 @@ class _ReportesPageState extends State<ReportesPage> {
           'Detalle de todas las ventas',
           Icons.point_of_sale,
           () {
-            // Navegar al reporte de ventas detallado
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Funcionalidad en desarrollo')),
-            );
+            context.push('/reportes/ventas');
           },
         ),
         _buildReporteItem(
@@ -353,9 +351,7 @@ class _ReportesPageState extends State<ReportesPage> {
           'Historial de compras a proveedores',
           Icons.shopping_cart,
           () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Funcionalidad en desarrollo')),
-            );
+            context.push('/reportes/compras');
           },
         ),
         _buildReporteItem(
@@ -364,9 +360,7 @@ class _ReportesPageState extends State<ReportesPage> {
           'Estado actual del inventario',
           Icons.inventory_2,
           () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Funcionalidad en desarrollo')),
-            );
+            context.push('/reportes/inventario');
           },
         ),
         const SizedBox(height: 24),
