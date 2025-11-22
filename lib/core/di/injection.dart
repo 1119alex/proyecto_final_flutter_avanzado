@@ -12,6 +12,7 @@ import '../../data/local/daos/inventario_dao.dart';
 import '../../data/local/daos/venta_dao.dart';
 import '../../data/local/daos/compra_dao.dart';
 import '../../data/local/daos/transferencia_dao.dart';
+import '../../data/local/daos/usuario_dao.dart';
 import '../../data/sync/sync_service.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/categorias_repository.dart';
@@ -24,6 +25,7 @@ import '../../data/repositories/inventario_repository.dart';
 import '../../data/repositories/ventas_repository.dart';
 import '../../data/repositories/compras_repository.dart';
 import '../../data/repositories/transferencias_repository.dart';
+import '../../data/repositories/usuarios_repository.dart';
 
 final getIt = GetIt.instance;
 
@@ -125,5 +127,13 @@ Future<void> configureDependencies() async {
 
   getIt.registerLazySingleton<TransferenciasRepository>(
     () => TransferenciasRepository(getIt<TransferenciaDao>()),
+  );
+
+  getIt.registerLazySingleton<UsuarioDao>(
+    () => UsuarioDao(getIt<AppDatabase>()),
+  );
+
+  getIt.registerLazySingleton<UsuariosRepository>(
+    () => UsuariosRepository(getIt<UsuarioDao>()),
   );
 }

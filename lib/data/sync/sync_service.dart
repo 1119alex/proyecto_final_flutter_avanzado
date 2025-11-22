@@ -401,6 +401,37 @@ class SyncService {
               );
         }
       });
+
+      // Sincronizar usuarios
+      await _syncTable('usuarios', (data) async {
+        for (final item in data) {
+          await _db
+              .into(_db.usuarios)
+              .insertOnConflictUpdate(
+                UsuariosCompanion.insert(
+                  id: item['id'],
+                  email: item['email'],
+                  nombre: item['nombre'],
+                  apellido: item['apellido'],
+                  rol: item['rol'],
+                  tiendaId: Value(item['tienda_id']),
+                  almacenId: Value(item['almacen_id']),
+                  activo: Value(item['activo'] ?? true),
+                  createdAt: Value(
+                    item['created_at'] != null
+                        ? DateTime.parse(item['created_at'])
+                        : DateTime.now(),
+                  ),
+                  updatedAt: Value(
+                    item['updated_at'] != null
+                        ? DateTime.parse(item['updated_at'])
+                        : DateTime.now(),
+                  ),
+                  syncStatus: const Value('sincronizado'),
+                ),
+              );
+        }
+      });
     } catch (e) {
       debugPrint('Error descargando datos: $e');
     }
@@ -624,6 +655,20 @@ class SyncService {
             debugPrint(
               'Cambio en transferencia_detalles: ${payload.eventType}',
             );
+            _pullFromServer();
+          },
+        )
+        .subscribe();
+
+    // Suscribirse a cambios en usuarios
+    _supabase
+        .channel('public:usuarios')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'usuarios',
+          callback: (payload) {
+            debugPrint('Cambio en usuarios: ${payload.eventType}');
             _pullFromServer();
           },
         )
