@@ -24,6 +24,8 @@ import 'presentation/blocs/proveedores/proveedores_bloc.dart';
 import 'presentation/blocs/productos/productos_bloc.dart';
 import 'presentation/blocs/clientes/clientes_bloc.dart';
 import 'data/repositories/clientes_repository.dart';
+import 'data/repositories/inventario_repository.dart';
+import 'presentation/blocs/inventario/inventario_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -94,6 +96,11 @@ class MyApp extends StatelessWidget {
         // Clientes Bloc
         BlocProvider<ClientesBloc>(
           create: (context) => ClientesBloc(getIt<ClientesRepository>()),
+        ),
+
+        // Inventario Bloc
+        BlocProvider<InventarioBloc>(
+          create: (context) => InventarioBloc(getIt<InventarioRepository>()),
         ),
       ],
       child: Builder(

@@ -8,6 +8,7 @@ import '../../data/local/daos/almacen_dao.dart';
 import '../../data/local/daos/proveedor_dao.dart';
 import '../../data/local/daos/producto_dao.dart';
 import '../../data/local/daos/cliente_dao.dart';
+import '../../data/local/daos/inventario_dao.dart';
 import '../../data/sync/sync_service.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/categorias_repository.dart';
@@ -16,6 +17,7 @@ import '../../data/repositories/almacenes_repository.dart';
 import '../../data/repositories/proveedores_repository.dart';
 import '../../data/repositories/productos_repository.dart';
 import '../../data/repositories/clientes_repository.dart';
+import '../../data/repositories/inventario_repository.dart';
 
 final getIt = GetIt.instance;
 
@@ -51,6 +53,10 @@ Future<void> configureDependencies() async {
 
   getIt.registerLazySingleton<ClienteDao>(
     () => ClienteDao(getIt<AppDatabase>()),
+  );
+
+  getIt.registerLazySingleton<InventarioDao>(
+    () => InventarioDao(getIt<AppDatabase>()),
   );
 
   // Servicio de sincronización (debe registrarse antes de repositorios que lo usen)
@@ -89,5 +95,9 @@ Future<void> configureDependencies() async {
 
   getIt.registerLazySingleton<ClientesRepository>(
     () => ClientesRepository(getIt<ClienteDao>()),
+  );
+
+  getIt.registerLazySingleton<InventarioRepository>(
+    () => InventarioRepository(getIt<InventarioDao>()),
   );
 }
