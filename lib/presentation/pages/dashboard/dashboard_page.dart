@@ -9,6 +9,7 @@ import '../../blocs/reportes/reportes_bloc.dart';
 import '../../blocs/reportes/reportes_event.dart';
 import '../../blocs/reportes/reportes_state.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/permissions/permissions_service.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -283,13 +284,30 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildMainMenu(BuildContext context) {
-    final menuItems = [
+    // Obtener el rol del usuario autenticado
+    final authState = context.watch<AuthBloc>().state;
+    String? userRole;
+
+    if (authState is AuthAuthenticated) {
+      userRole = authState.userData?['rol'];
+    }
+
+    // Si no hay rol, no mostrar ningún menú
+    if (userRole == null) {
+      return const Center(
+        child: Text('No se pudo determinar el rol del usuario'),
+      );
+    }
+
+    // Definir todos los items del menú con su módulo asociado
+    final allMenuItems = [
       _MenuItem(
         title: 'Productos',
         subtitle: 'Gestionar catálogo',
         icon: Icons.inventory_2_outlined,
         color: AppTheme.primaryColor,
         route: '/productos',
+        module: PermissionsService.productos,
       ),
       _MenuItem(
         title: 'Categorías',
@@ -297,6 +315,7 @@ class _DashboardPageState extends State<DashboardPage> {
         icon: Icons.category_outlined,
         color: Colors.orange,
         route: '/categorias',
+        module: PermissionsService.categorias,
       ),
       _MenuItem(
         title: 'Ventas',
@@ -304,6 +323,7 @@ class _DashboardPageState extends State<DashboardPage> {
         icon: Icons.point_of_sale_outlined,
         color: AppTheme.successColor,
         route: '/ventas',
+        module: PermissionsService.ventas,
       ),
       _MenuItem(
         title: 'Compras',
@@ -311,6 +331,7 @@ class _DashboardPageState extends State<DashboardPage> {
         icon: Icons.shopping_cart_outlined,
         color: Colors.purple,
         route: '/compras',
+        module: PermissionsService.compras,
       ),
       _MenuItem(
         title: 'Inventario',
@@ -318,6 +339,7 @@ class _DashboardPageState extends State<DashboardPage> {
         icon: Icons.warehouse_outlined,
         color: Colors.teal,
         route: '/inventario',
+        module: PermissionsService.inventario,
       ),
       _MenuItem(
         title: 'Transferencias',
@@ -325,6 +347,7 @@ class _DashboardPageState extends State<DashboardPage> {
         icon: Icons.swap_horiz_outlined,
         color: Colors.indigo,
         route: '/transferencias',
+        module: PermissionsService.transferencias,
       ),
       _MenuItem(
         title: 'Tiendas',
@@ -332,6 +355,7 @@ class _DashboardPageState extends State<DashboardPage> {
         icon: Icons.store_outlined,
         color: Colors.pink,
         route: '/tiendas',
+        module: PermissionsService.tiendas,
       ),
       _MenuItem(
         title: 'Almacenes',
@@ -339,6 +363,7 @@ class _DashboardPageState extends State<DashboardPage> {
         icon: Icons.warehouse,
         color: Colors.brown,
         route: '/almacenes',
+        module: PermissionsService.almacenes,
       ),
       _MenuItem(
         title: 'Empleados',
@@ -346,6 +371,7 @@ class _DashboardPageState extends State<DashboardPage> {
         icon: Icons.people_outline,
         color: Colors.cyan,
         route: '/empleados',
+        module: PermissionsService.empleados,
       ),
       _MenuItem(
         title: 'Clientes',
@@ -353,6 +379,7 @@ class _DashboardPageState extends State<DashboardPage> {
         icon: Icons.person_outline,
         color: Colors.amber,
         route: '/clientes',
+        module: PermissionsService.clientes,
       ),
       _MenuItem(
         title: 'Proveedores',
@@ -360,6 +387,7 @@ class _DashboardPageState extends State<DashboardPage> {
         icon: Icons.local_shipping_outlined,
         color: Colors.deepOrange,
         route: '/proveedores',
+        module: PermissionsService.proveedores,
       ),
       _MenuItem(
         title: 'Reportes',
@@ -367,8 +395,27 @@ class _DashboardPageState extends State<DashboardPage> {
         icon: Icons.bar_chart_outlined,
         color: Colors.blue,
         route: '/reportes',
+        module: PermissionsService.reportes,
       ),
     ];
+
+    // Filtrar items según permisos del rol
+    final menuItems = allMenuItems
+        .where((item) => PermissionsService.canAccess(userRole!, item.module))
+        .toList();
+
+    // Si no hay items permitidos, mostrar mensaje
+    if (menuItems.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Text(
+            'No tienes permisos para acceder a ningún módulo',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
 
     return GridView.builder(
       shrinkWrap: true,
@@ -545,6 +592,7 @@ class _MenuItem {
   final IconData icon;
   final Color color;
   final String route;
+  final String module;
 
   const _MenuItem({
     required this.title,
@@ -552,6 +600,7 @@ class _MenuItem {
     required this.icon,
     required this.color,
     required this.route,
+    required this.module,
   });
 }
 

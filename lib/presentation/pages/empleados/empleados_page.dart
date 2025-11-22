@@ -28,6 +28,9 @@ class _EmpleadosPageState extends State<EmpleadosPage> {
   void initState() {
     super.initState();
     context.read<UsuariosBloc>().add(const LoadUsuarios());
+    // Cargar tiendas y almacenes para mostrar nombres
+    context.read<TiendasBloc>().add(const LoadTiendas());
+    context.read<AlmacenesBloc>().add(const LoadAlmacenes());
   }
 
   @override
@@ -112,53 +115,83 @@ class _EmpleadosPageState extends State<EmpleadosPage> {
               );
             }
 
-            return Column(
-              children: [
-                // Estadísticas por rol
-                if (state.conteoPorRol.isNotEmpty)
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
+            // Obtener nombres de tiendas y almacenes
+            return BlocBuilder<TiendasBloc, TiendasState>(
+              builder: (context, tiendasState) {
+                return BlocBuilder<AlmacenesBloc, AlmacenesState>(
+                  builder: (context, almacenesState) {
+                    // Crear mapas de ID -> Nombre
+                    final Map<String, String> tiendaNombres = {};
+                    final Map<String, String> almacenNombres = {};
+
+                    if (tiendasState is TiendasLoaded) {
+                      for (final tienda in tiendasState.tiendas) {
+                        tiendaNombres[tienda.id] = tienda.nombre;
+                      }
+                    }
+
+                    if (almacenesState is AlmacenesLoaded) {
+                      for (final almacen in almacenesState.almacenes) {
+                        almacenNombres[almacen.id] = almacen.nombre;
+                      }
+                    }
+
+                    return Column(
                       children: [
-                        _buildRolChip(
-                          'Admin',
-                          state.conteoPorRol['admin'] ?? 0,
-                          Colors.purple,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildRolChip(
-                          'Vendedor',
-                          state.conteoPorRol['vendedor'] ?? 0,
-                          AppTheme.successColor,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildRolChip(
-                          'Enc. Tienda',
-                          state.conteoPorRol['encargado_tienda'] ?? 0,
-                          Colors.orange,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildRolChip(
-                          'Enc. Almacén',
-                          state.conteoPorRol['encargado_almacen'] ?? 0,
-                          Colors.blue,
+                        // Estadísticas por rol
+                        if (state.conteoPorRol.isNotEmpty)
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                _buildRolChip(
+                                  'Admin',
+                                  state.conteoPorRol['admin'] ?? 0,
+                                  Colors.purple,
+                                ),
+                                const SizedBox(width: 8),
+                                _buildRolChip(
+                                  'Vendedor',
+                                  state.conteoPorRol['vendedor'] ?? 0,
+                                  AppTheme.successColor,
+                                ),
+                                const SizedBox(width: 8),
+                                _buildRolChip(
+                                  'Enc. Tienda',
+                                  state.conteoPorRol['encargado_tienda'] ?? 0,
+                                  Colors.orange,
+                                ),
+                                const SizedBox(width: 8),
+                                _buildRolChip(
+                                  'Enc. Almacén',
+                                  state.conteoPorRol['encargado_almacen'] ?? 0,
+                                  Colors.blue,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        // Lista de usuarios
+                        Expanded(
+                          child: ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: usuarios.length,
+                            itemBuilder: (context, index) {
+                              final usuario = usuarios[index];
+                              return _buildUsuarioCard(
+                                context,
+                                usuario,
+                                tiendaNombres: tiendaNombres,
+                                almacenNombres: almacenNombres,
+                              );
+                            },
+                          ),
                         ),
                       ],
-                    ),
-                  ),
-
-                // Lista de usuarios
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: usuarios.length,
-                    itemBuilder: (context, index) {
-                      final usuario = usuarios[index];
-                      return _buildUsuarioCard(context, usuario);
-                    },
-                  ),
-                ),
-              ],
+                    );
+                  },
+                );
+              },
             );
           }
 
@@ -231,7 +264,12 @@ class _EmpleadosPageState extends State<EmpleadosPage> {
     );
   }
 
-  Widget _buildUsuarioCard(BuildContext context, Usuario usuario) {
+  Widget _buildUsuarioCard(
+    BuildContext context,
+    Usuario usuario, {
+    Map<String, String>? tiendaNombres,
+    Map<String, String>? almacenNombres,
+  }) {
     final activo = usuario.activo;
     final rol = usuario.rol;
 
@@ -258,6 +296,14 @@ class _EmpleadosPageState extends State<EmpleadosPage> {
         rolColor = Colors.grey;
         rolLabel = rol.toUpperCase();
     }
+
+    // Obtener nombres de tienda y almacén
+    final tiendaNombre = usuario.tiendaId != null
+        ? (tiendaNombres?[usuario.tiendaId] ?? 'Cargando...')
+        : null;
+    final almacenNombre = usuario.almacenId != null
+        ? (almacenNombres?[usuario.almacenId] ?? 'Cargando...')
+        : null;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -326,28 +372,40 @@ class _EmpleadosPageState extends State<EmpleadosPage> {
               children: [
                 const Icon(Icons.email, size: 14, color: Colors.grey),
                 const SizedBox(width: 4),
-                Text(usuario.email, style: const TextStyle(fontSize: 12)),
+                Expanded(
+                  child: Text(
+                    usuario.email,
+                    style: const TextStyle(fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
-            if (usuario.tiendaId != null)
+            if (tiendaNombre != null)
               Row(
                 children: [
                   const Icon(Icons.store, size: 14, color: Colors.grey),
                   const SizedBox(width: 4),
-                  Text(
-                    'Tienda: ${usuario.tiendaId}',
-                    style: const TextStyle(fontSize: 12),
+                  Expanded(
+                    child: Text(
+                      'Tienda: $tiendaNombre',
+                      style: const TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
-            if (usuario.almacenId != null)
+            if (almacenNombre != null)
               Row(
                 children: [
                   const Icon(Icons.warehouse, size: 14, color: Colors.grey),
                   const SizedBox(width: 4),
-                  Text(
-                    'Almacén: ${usuario.almacenId}',
-                    style: const TextStyle(fontSize: 12),
+                  Expanded(
+                    child: Text(
+                      'Almacén: $almacenNombre',
+                      style: const TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
