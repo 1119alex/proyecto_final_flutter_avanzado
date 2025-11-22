@@ -334,6 +334,20 @@ class SyncService {
           },
         )
         .subscribe();
+
+    // Suscribirse a cambios en clientes
+    _supabase
+        .channel('public:clientes')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'clientes',
+          callback: (payload) {
+            debugPrint('Cambio en clientes: ${payload.eventType}');
+            _pullFromServer();
+          },
+        )
+        .subscribe();
   }
 
   void dispose() {
